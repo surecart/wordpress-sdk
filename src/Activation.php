@@ -37,8 +37,8 @@ class Activation {
      * @return object|\WP_Error
      */
     public function create() {
-        $license_key = $this->client->license()->get_id();
-        if ( empty( $license_key ) ) {
+        $license_id = $this->client->license()->get_id();
+        if ( empty( $license_id ) ) {
             return new \WP_Error( 'missing_key', $this->client->__('Please enter a license key') );
         }
 
@@ -48,7 +48,7 @@ class Activation {
             [
                 'fingerprint' => esc_url_raw( get_site_url() ),
                 'name'        => get_bloginfo(),
-                'license'     => $license_key
+                'license'     => $license_id
             ] 
         );
     }
