@@ -80,7 +80,18 @@ class License {
      * @return string|null
      */
     public function get_id() {
-        return get_option( $this->option_key, null );
+        return get_option( $this->option_key . '_id', null );
+    }
+
+    /**
+     * Set the license id.
+     *
+     * @since 1.3.0
+     *
+     * @return string|null
+     */
+    public function set_id( $id ) {
+        return update_option( $this->option_key . '_id', $id );
     }
 
     /**
@@ -93,6 +104,33 @@ class License {
     public function retrieve( $license_key ) {
         $route    = trailingslashit( $this->endpoint ) . $license_key;
         return $this->client->send_request( 'GET', $route );
+    }
+
+    /**
+     * Activate a specific license key.
+     *
+     * @return void
+     */
+    public function activate( $key = '' ) {
+        // get the license by key
+        $license = $this->retrieve( $key );
+
+        // check to make sure it's valid.
+        $is_valid = $this->validate_license( $license );
+        if( is_wp_error( $is_valid ) ) {
+            return $is_valid;
+        }
+
+        // if it's not, or license id is empty, it's not valid.
+        if( ! $is_valid || empty( $license['id'] ) ) {
+            return new \WP_Error( $license->get_error_code(), $this->client->__( 'This license key is not valid. Please double check it and try again.' ) );
+        }
+
+        // it's valid, store the license id.
+        $this->set_id( $license['id'] );
+
+        // activate the license for the domain.
+        return $this->client->activation()->create();
     }
 
     /**
@@ -134,6 +172,21 @@ class License {
         // get the license from the server.
         $license = $this->retrieve( $license_key );
 
+        // validate the license response.
+        $this->is_valid_license = $this->validate_license( $license );
+
+        // return validity.
+        return $this->is_valid_license;
+    }
+
+    /**
+     * Validate the license response
+     *
+     * @param Object|\WP_Error $license The license response.
+     *
+     * @return void
+     */
+    public function validate_license( $license ) {
         if ( is_wp_error( $license ) ) {
             if ( $license->get_error_code( 'not_found' ) ) {
                 return new \WP_Error($license->get_error_code(), $this->client->__( 'This license key is not valid. Please double check it and try again.' ) );
@@ -143,12 +196,9 @@ class License {
 
         // if we have a key and the status is not revoked
         if ( ! empty( $license['key'] ) && isset( $license['status'] ) && $license['status'] !== 'revoked' ) {
-            $this->is_valid_license = true;
-        } else {
-            $this->is_valid_license = false;
-        }
-
-        // return validity.
-        return $this->is_valid_license;
+            return true;
+        } 
+        
+        return false;
     }
 }
