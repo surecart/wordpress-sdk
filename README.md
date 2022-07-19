@@ -1,7 +1,6 @@
 # SureCart Theme and Plugin Licensing SDK
 
 - [Installation](#installation)
-- [Dynamic Usage](#dynamic-usage)
 
 
 ## Installation
