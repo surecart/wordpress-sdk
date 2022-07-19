@@ -1,0 +1,20 @@
+{
+  "name": "surecart/license-example",
+  "description": "SureCart License Example",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andre Gagnon",
+      "email": "andre@bsf.io"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "SureCart\\Licensing\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=5.3"
+  }
+}
