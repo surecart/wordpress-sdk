@@ -121,6 +121,8 @@ class Settings {
 		<div class="wrap">
 			<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
 
+            <?php settings_errors(); ?>
+
 			<form method="post" action="options.php">
 				<?php
 					settings_fields( $this->client->name . '_option_group' );
@@ -152,9 +154,9 @@ class Settings {
 		);
 
 		add_settings_field(
-			'api_key_0', // id
+			'sc_license_key', // id
 			$this->client->__('Enter Your License Key'), // title
-			[ $this, 'api_key_0_callback' ], // callback
+			[ $this, 'license_key_callback' ], // callback
 			$this->client->name . '-admin', // page
 			$this->client->name . '_setting_section' // section
 		);
@@ -169,11 +171,27 @@ class Settings {
      */
 	public function sanitize_settings( $input ) {
 		$sanitary_values = array();
-		if ( isset( $input['api_key_0'] ) ) {
-			$sanitary_values['api_key_0'] = sanitize_text_field( $input['api_key_0'] );
+		if ( isset( $input['sc_license_key'] ) ) {
+			$sanitary_values['sc_license_key'] = sanitize_text_field( $input['sc_license_key'] );
             
-            $valid = $this->validate_license( $sanitary_values['api_key_0'] );
+            $valid = $this->client->license()->activate( $sanitary_values['sc_license_key'] );
+            if ( is_wp_error( $valid ) ) {
+                add_settings_error(
+                    $this->client->name . '_option_name', // whatever you registered in `register_setting
+                    $valid->get_error_code(), // doesn't really mater
+                    $valid->get_error_message(),
+                    'error',
+                );
+                return;
+            }
+
             if ( ! $valid ) {
+                add_settings_error(
+                    $this->client->name . '_option_name', // whatever you registered in `register_setting
+                    'not_found', // doesn't really mater
+                    __('This is not a valid license. Please double check and try again.', 'surecart'),
+                    'error',
+                );
                 return;
             }            
 		}
@@ -181,35 +199,10 @@ class Settings {
 		return $sanitary_values;
 	}
 
-	public function validate_license($key) {
-        $valid = $this->client->license()->is_valid( $key );
-
-        if ( is_wp_error( $valid ) ) {
-            add_settings_error(
-                $this->client->name . '_option_name', // whatever you registered in `register_setting
-                $valid->get_error_code(), // doesn't really mater
-                $valid->get_error_message(),
-                'error',
-            );
-            return false;
-        }
-        
-        if ( ! $valid ) {
-            add_settings_error(
-                $this->client->name . '_option_name', // whatever you registered in `register_setting
-                'not_found', // doesn't really mater
-                __('This is not a valid license. Please double check and try again.', 'surecart'),
-                'error',
-            );
-        }
-
-        return $valid;
-    }
-
-	public function api_key_0_callback() {
+	public function license_key_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->client->name . '_option_name[api_key_0]" id="api_key_0" value="%s">',
-			isset( $this->settings_options['api_key_0'] ) ? esc_attr( $this->settings_options['api_key_0'] ) : ''
+			'<input class="regular-text" type="text" name="' . $this->client->name . '_option_name[sc_license_key]" id="sc_license_key" value="%s">',
+			isset( $this->settings_options['sc_license_key'] ) ? esc_attr( $this->settings_options['sc_license_key'] ) : ''
 		);
 	}
 
