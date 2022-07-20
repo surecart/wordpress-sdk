@@ -4,7 +4,6 @@ namespace SureCart\Licensing;
 
 /**
  * License model
- *
  */
 class License {
     /**
@@ -52,7 +51,7 @@ class License {
      *
      * @param string $key
      *
-     * @since 1.3.0
+     * @since 1.0.0
      *
      * @return License
      */
@@ -64,7 +63,7 @@ class License {
     /**
      * Get the license key
      *
-     * @since 1.3.0
+     * @since 1.0.0
      *
      * @return string|null
      */
@@ -73,9 +72,20 @@ class License {
     }
 
     /**
+     * Set the license key
+     *
+     * @since 1.0.0
+     *
+     * @return string|null
+     */
+    public function set_key( $key ) {
+        return update_option( $this->option_key, $key );
+    }
+
+    /**
      * Get the license key
      *
-     * @since 1.3.0
+     * @since 1.0.0
      *
      * @return string|null
      */
@@ -86,7 +96,7 @@ class License {
     /**
      * Set the license id.
      *
-     * @since 1.3.0
+     * @since 1.0.0
      *
      * @return string|null
      */
@@ -122,12 +132,13 @@ class License {
         }
 
         // if it's not, or license id is empty, it's not valid.
-        if( ! $is_valid || empty( $license['id'] ) ) {
-            return new \WP_Error( $license->get_error_code(), $this->client->__( 'This license key is not valid. Please double check it and try again.' ) );
+        if( ! $is_valid || empty( $license->id ) ) {
+            return new \WP_Error( 'error', $this->client->__( 'This license key is not valid. Please double check it and try again.' ) );
         }
 
-        // it's valid, store the license id.
-        $this->set_id( $license['id'] );
+        // it's valid, store the license id and key.
+        $this->set_id( $license->id );
+        $this->set_key( $license->key );
 
         // activate the license for the domain.
         return $this->client->activation()->create();
@@ -141,8 +152,18 @@ class License {
      * @param integer $expires_in The amount of time until it expires.
      * @return bool
      */
-    public function get_current_release( $license_key, $activation_id, $expires_in = 900 ) {
-        $route    = trailingslashit( $this->endpoint ) . $license_key . '/expose_current_release';
+    public function get_current_release( $expires_in = 900 ) {
+        $options = get_option( $this->client->name . '_license_options', false );
+        if ( empty( $options['sc_license_key'] ) ) {
+            return;
+        }
+
+        $activation_id = $this->client->activation()->get_id();
+        if ( empty( $activation_id  ) ) {
+            return;
+        }
+
+        $route    = trailingslashit( $this->endpoint ) . $options['sc_license_key'] . '/expose_current_release';
         return $this->client->send_request( 'GET', $route, [
             'activation_id' => $activation_id,
             'expose_for' => $expires_in
@@ -195,7 +216,7 @@ class License {
         }
 
         // if we have a key and the status is not revoked
-        if ( ! empty( $license['key'] ) && isset( $license['status'] ) && $license['status'] !== 'revoked' ) {
+        if ( ! empty( $license->key ) && isset( $license->status ) && $license->status !== 'revoked' ) {
             return true;
         } 
         
