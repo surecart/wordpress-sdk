@@ -116,7 +116,7 @@ class Settings {
      * @return void
      */
     public function settings_output() {
-        $this->settings_options = get_option( $this->client->name . '_option_name' ); ?>
+        $this->settings_options = get_option( $this->client->name . '_license_options' ); ?>
 
 		<div class="wrap">
 			<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
@@ -142,7 +142,7 @@ class Settings {
 	public function init_settings_page() {
 		register_setting(
 			$this->client->name . '_option_group', // option_group
-			$this->client->name . '_option_name', // option_name
+			$this->client->name . '_license_options', // option_name
 			[ $this, 'sanitize_settings' ] // sanitize_callback
 		);
 
@@ -177,7 +177,7 @@ class Settings {
             $valid = $this->client->license()->activate( $sanitary_values['sc_license_key'] );
             if ( is_wp_error( $valid ) ) {
                 add_settings_error(
-                    $this->client->name . '_option_name', // whatever you registered in `register_setting
+                    $this->client->name . '_license_options', // whatever you registered in `register_setting
                     $valid->get_error_code(), // doesn't really mater
                     $valid->get_error_message(),
                     'error',
@@ -187,7 +187,7 @@ class Settings {
 
             if ( ! $valid ) {
                 add_settings_error(
-                    $this->client->name . '_option_name', // whatever you registered in `register_setting
+                    $this->client->name . '_license_options', // whatever you registered in `register_setting
                     'not_found', // doesn't really mater
                     __('This is not a valid license. Please double check and try again.', 'surecart'),
                     'error',
@@ -201,7 +201,7 @@ class Settings {
 
 	public function license_key_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->client->name . '_option_name[sc_license_key]" id="sc_license_key" value="%s">',
+			'<input class="regular-text" type="text" name="' . $this->client->name . '_license_options[sc_license_key]" id="sc_license_key" value="%s">',
 			isset( $this->settings_options['sc_license_key'] ) ? esc_attr( $this->settings_options['sc_license_key'] ) : ''
 		);
 	}
