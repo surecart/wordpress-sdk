@@ -22,6 +22,13 @@ class Activation {
     protected $client;
 
     /**
+     * `option_name` of `wp_options` table
+     *
+     * @var string
+     */
+    protected $option_key;
+
+    /**
      * Initialize the class
      *
      * @param SureCart\Licensing\Client
@@ -29,6 +36,29 @@ class Activation {
      */
     public function __construct( Client $client ) {
         $this->client = $client;
+        $this->option_key = 'surecart_' . md5( $this->client->slug ) . '_license_activation_id';
+    }
+
+    /**
+     * Get the activation id.
+     *
+     * @since 1.0.0
+     *
+     * @return string|null
+     */
+    public function get_id() {
+        return get_option( $this->option_key, null );
+    }
+
+    /**
+     * Set the activation id
+     *
+     * @since 1.0.0
+     *
+     * @return string|null
+     */
+    public function set_id( $id ) {
+        return update_option( $this->option_key, $id );
     }
 
     /**
@@ -42,15 +72,33 @@ class Activation {
             return new \WP_Error( 'missing_key', $this->client->__('Please enter a license key') );
         }
 
-        return $this->client->send_request( 
+        $activation = $this->client->send_request( 
             'POST',
             trailingslashit( $this->endpoint ), 
             [
-                'fingerprint' => esc_url_raw( get_site_url() ),
-                'name'        => get_bloginfo(),
-                'license'     => $license_id
+                'activation' => [
+                    'fingerprint' => esc_url_raw( get_site_url() ),
+                    'name'        => get_bloginfo(),
+                    'license'     => $license_id
+                ]
             ] 
         );
+
+        // error.
+        if ( is_wp_error( $activation ) ) {
+            return $activation;
+        }
+
+        // no id.
+        if ( empty( $activation->id ) ) {
+            return new \WP_Error( 'could_not_activate', $this->client->__( 'Could not activate the license.', 'surecart' ) );
+        }
+
+        // set the id.
+        $this->set_id( $activation->id );
+
+        // return the activation.
+        return $activation;
     }
 
     /**
