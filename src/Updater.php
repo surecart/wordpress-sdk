@@ -141,44 +141,39 @@ class Updater {
      * Get plugin info from YourProject
      */
     private function get_project_latest_version() {
+        $current_release = $this->client->license()->get_current_release();
 
-        $license = $this->client->license()->get_license();
-
-        $params = array(
-            'version'     => $this->client->project_version,
-            'name'        => $this->client->name,
-            'slug'        => $this->client->slug,
-            'basename'    => $this->client->basename,
-            'license_key' => ! empty( $license ) && isset( $license['key'] ) ? $license['key'] : '',
-        );
-
-        $route = 'update/' . $this->client->hash . '/check';
-
-        $response = $this->client->send_request( $params, $route, true );
-
-        if ( is_wp_error( $response ) ) {
+        if ( is_wp_error( $current_release ) ) {
             return false;
         }
 
-        $response = json_decode( wp_remote_retrieve_body( $response ) );
+        $release = $current_release->release_json;
 
-        if ( ! isset( $response->slug ) ) {
+        // must have a slug.
+        if ( ! isset( $release->slug ) ) {
             return false;
         }
+        
+        // set the new version.
+        $release->new_version = $release->version;
 
-        if ( isset( $response->icons ) ) {
-            $response->icons = (array) $response->icons;
+        if ( empty( $release->last_updated ) ) {
+            $release->last_updated = date_i18n( get_option('date_format'), $current_release->updated_at ?? time() );
         }
 
-        if ( isset( $response->banners ) ) {
-            $response->banners = (array) $response->banners;
+        if( isset( $current_release->url ) ) {
+            $release->download_url = $current_release->url;
         }
 
-        if ( isset( $response->sections ) ) {
-            $response->sections = (array) $response->sections;
+        if ( isset( $release->banners ) ) {
+            $release->banners = (array) $release->banners;
         }
 
-        return $response;
+        if ( isset( $release->sections ) ) {
+            $release->sections = (array) $release->sections;
+        }
+
+        return $release;
     }
 
     /**
@@ -191,7 +186,6 @@ class Updater {
      * @return object $data
      */
     public function plugins_api_filter( $data, $action = '', $args = null ) {
-
         if ( $action != 'plugin_information' ) {
             return $data;
         }
@@ -244,7 +238,7 @@ class Updater {
      * Get version information
      */
     private function get_version_info() {
-        $version_info = $this->get_cached_version_info();
+        $version_info = false; //$this->get_cached_version_info();
 
         if ( false === $version_info ) {
             $version_info = $this->get_project_latest_version();
