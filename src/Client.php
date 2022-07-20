@@ -107,6 +107,7 @@ class Client {
 
         $this->license();
         $this->activation();
+        $this->updater();
     }
 
     /**
@@ -181,7 +182,7 @@ class Client {
     public function endpoint() {
         // allow a constant to be set.
         if ( defined( 'SURECART_LICENSING_ENDPOINT' ) ) {
-            return SURECART_LICENSING_ENDPOINT;
+            return trailingslashit( SURECART_LICENSING_ENDPOINT );
         }
 
         // filterable endpoint.
@@ -247,12 +248,27 @@ class Client {
         }
 
         $response_code = wp_remote_retrieve_response_code( $response );
+        $response_body = json_decode( wp_remote_retrieve_body( $response ) );
+
         if ( ! in_array( $response_code, [ 200, 201 ], true ) ) {
             if ( 404 === $response_code) {
                 return new \WP_Error('not_found', $this->__( 'Not found' ));
             }
+
+            if( ! empty( $response_body->validation_errors[0]->code ) ) {
+                switch( $response_body->validation_errors[0]->code) {
+                    case 'activation.fingerprint.taken';
+                        return new \WP_Error( 'already_activated', $this->__( 'You have already activated the license for this site.' ) );
+                }
+            }
+
+            if ( ! empty( $response_body->code ) && ! empty( $response_body->message ) ) {
+                return new \WP_Error( $response_body->code, esc_html( $response_body->message ) );
+            }
             return new \WP_Error('error', $this->__( 'Unknown error occurred, Please try again.' ));
         }
+
+        return $response_body;
     }
 
     /**
