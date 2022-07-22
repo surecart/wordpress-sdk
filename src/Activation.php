@@ -40,34 +40,11 @@ class Activation {
     }
 
     /**
-     * Get the activation id.
-     *
-     * @since 1.0.0
-     *
-     * @return string|null
-     */
-    public function get_id() {
-        return get_option( $this->option_key, null );
-    }
-
-    /**
-     * Set the activation id
-     *
-     * @since 1.0.0
-     *
-     * @return string|null
-     */
-    public function set_id( $id ) {
-        return update_option( $this->option_key, $id );
-    }
-
-    /**
      * Create an activation for the license.
      * 
      * @return object|\WP_Error
      */
-    public function create() {
-        $license_id = $this->client->license()->get_id();
+    public function create( $license_id ) {
         if ( empty( $license_id ) ) {
             return new \WP_Error( 'missing_key', $this->client->__('Please enter a license key') );
         }
@@ -93,9 +70,6 @@ class Activation {
         if ( empty( $activation->id ) ) {
             return new \WP_Error( 'could_not_activate', $this->client->__( 'Could not activate the license.', 'surecart' ) );
         }
-
-        // set the id.
-        $this->set_id( $activation->id );
 
         // return the activation.
         return $activation;

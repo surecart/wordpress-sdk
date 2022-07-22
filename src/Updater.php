@@ -143,7 +143,7 @@ class Updater {
     private function get_project_latest_version() {
         $current_release = $this->client->license()->get_current_release();
 
-        if ( is_wp_error( $current_release ) ) {
+        if ( is_wp_error( $current_release ) || empty( $current_release ) ) {
             return false;
         }
 

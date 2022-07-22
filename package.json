@@ -1,0 +1,14 @@
+{
+  "name": "@surecart/wordpress-sdk",
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "wp-env": "wp-env",
+    "start": "wp-env start --xdebug=develop,coverage",
+    "test:php": "wp-env run phpunit 'phpunit -c /var/www/html/wp-content/plugins/surecart-plugin-example/phpunit.xml --testdox --coverage-html ./tests/report'"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^4.9.0"
+  }
+}
