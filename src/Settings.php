@@ -209,6 +209,7 @@ class Settings {
         ?>
 
 		<div class="wrap">
+            <h1></h1>
             <?php settings_errors(); ?>
 
             <div class="<?php echo esc_attr($this->name) . '-form-container'; ?>">
@@ -244,7 +245,6 @@ class Settings {
                 display: grid;
                 gap: 1em;
                 max-width: 600px;
-                margin-top: 20px
             }
             h2 {
                 padding: 0;
