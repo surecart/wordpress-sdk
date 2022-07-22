@@ -122,7 +122,7 @@ class Activation {
      */
     public function delete( $id = '' ) {
         return $this->client->send_request( 
-            'GET',
+            'DELETE',
             trailingslashit( $this->endpoint ) . $id, 
         );
     }

@@ -54,30 +54,54 @@ class License {
      * @return void
      */
     public function activate( $key = '' ) {
-        // get the license by key
-        $license = $this->retrieve( $key );
-
-        // check to make sure it's valid.
-        $is_valid = $this->validate_license( $license );
-        if( is_wp_error( $is_valid ) ) {
-            return $is_valid;
+        // get license.
+        $license = $this->retrieve( sanitize_text_field( $key ) );
+        if ( is_wp_error($license) ) {
+            return $license;
         }
-
-        // if it's not, or license id is empty, it's not valid.
-        if( ! $is_valid || empty( $license->id ) ) {
-            return new \WP_Error( 'error', $this->client->__( 'This license key is not valid. Please double check it and try again.' ) );
+        if ( empty( $license->id ) ) {
+            return new \WP_Error( 'not_found', $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
         }
+        if ( 'revoked' === ( $license->status ?? 'revoked' ) ) {
+            return new \WP_Error( 'revoked', $this->client->__( 'This license is revoked.' ) );
+        } 
 
-        // activate the license for the domain.
-       $activation = $this->client->activation()->create( $license->id );
-
-       if ( is_wp_error( $activation ) ) {
+        // create the activation.
+        $activation = $this->client->activation()->create( $license->id );
+        if ( is_wp_error( $activation ) ) {
             return $activation;
-       }
+            return;
+        }
+        if ( empty( $activation->id ) ) {
+            return new \WP_Error( 'activation_failed', $this->client->__( 'Could not activate the license key.' )  );
+        }
 
-        $this->client->settings()->license_id = $license->id;
-        $this->client->settings()->license_key = $license->key;
+        // save activation data.
         $this->client->settings()->activation_id = $activation->id;
+        $this->client->settings()->license_key = $license->key;
+        $this->client->settings()->license_id = $license->id;
+
+        return true;
+    }
+
+    public function deactivate( $activation_id = '' ) {
+        if ( ! $activation_id ) {
+            $activation_id = $this->client->settings()->activation_id;
+        }
+
+        $deactivated = $this->client->activation()->delete( sanitize_text_field( $activation_id ) );
+
+        if ( is_wp_error( $deactivated ) ) {
+            // it has been deleted remotely.
+            if ( 'not_found' === $deactivated->get_error_code()) {
+                $this->client->settings()->clear_options();
+                return true;
+            }
+            return $deactivated;
+        }
+
+        $this->client->settings()->clear_options();
+        return true;
     }
 
     /**

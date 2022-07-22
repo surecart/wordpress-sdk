@@ -38,8 +38,6 @@ class Settings {
         $this->client = $client;
         $this->name = strtolower( $this->client->name );
         $this->option_key = $this->name . '_license_options';
-
-		add_action( 'admin_init', [ $this, 'init_settings_page' ] );
 	}
 
     /**
@@ -56,10 +54,18 @@ class Settings {
             'menu_slug'   => $this->client->slug . '-manage-license',
             'icon_url'    => '',
             'position'    => null,
+            'activated_redirect' => null,
             'parent_slug' => '',
         ] );
         add_action( 'admin_menu', [ $this, 'admin_menu' ], 99 );
 	}
+
+     /**
+     * Form action URL
+     */
+    private function form_action_url() {
+        return apply_filters( 'surecart_client_license_form_action', '' );
+    }
 
     /**
      * Set the license option key.
@@ -153,6 +159,15 @@ class Settings {
     }
 
     /**
+     * Clear out the options.
+     *
+     * @return bool
+     */
+    public function clear_options() {
+        return update_option( $this->option_key, [] );
+    }
+
+    /**
      * Get a specific option
      *
      * @param string $name Option name.
@@ -184,68 +199,117 @@ class Settings {
      * @return void
      */
     public function settings_output() {
+        if ( isset( $_POST['submit'] ) ) {
+            $this->license_form_submit( $_POST );
+        }
+
+        $this->print_css();
+        $activation_id = $this->activation_id;
+        $action = $activation_id ? 'deactivate' : 'activate' 
         ?>
 
 		<div class="wrap">
-			<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
-
             <?php settings_errors(); ?>
 
-			<form method="post" action="options.php">
-				<?php
-					settings_fields( $this->name . '_option_group' );
-					do_settings_sections( $this->name . '-admin' );
-					submit_button( $this->client->__('Activate License') );
-				?>
-			</form>
+            <div class="<?php echo esc_attr($this->name) . '-form-container'; ?>">
+                <form method="post" action="<?php echo esc_attr( $this->form_action_url() ); ?>">
+                    <input type="hidden" name="_action" value="<?php echo esc_attr( $action ); ?>">
+                    <input type="hidden" name="_nonce" value="<?php echo wp_create_nonce( $this->client->name ); ?>">
+                    <input type="hidden" name="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>">
+
+                    <h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
+                    <label for="license_key"><?php echo esc_html( sprintf( $this->client->__('Enter your license key to activate %s.', 'surecart'), $this->client->name ) ); ?></label>
+                    <input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
+
+                    <?php if ( !empty( $_GET['debug'] ) ) : ?>
+                        <label for="license_id"><?php echo esc_html( sprintf( $this->client->__('License ID', 'surecart'), $this->client->name ) ); ?></label>
+                        <input class="widefat" type="text" autocomplete="off" name="license_id" id="license_id" value="<?php echo esc_attr( $this->license_id ); ?>" autofocus>
+
+                        <label for="activation_id"><?php echo esc_html( sprintf( $this->client->__('Activation ID', 'surecart'), $this->client->name ) ); ?></label>
+                        <input class="widefat" type="text" autocomplete="off" name="activation_id" id="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>" autofocus>
+                    <?php endif; ?>
+
+                    <?php submit_button( 'activate' === $action  ? $this->client->__('Activate License') : $this->client->__('Deactivate License') ); ?>
+                </form>
+            </div>
 		</div>
 		<?php
     }
 
+    public function print_css() { ?>
+        <style>
+            <?php echo '.' . esc_attr( $this->name ) . '-form-container'; ?> form {
+                padding:30px;
+                background: #fff;
+                display: grid;
+                gap: 1em;
+                max-width: 600px;
+                margin-top: 20px
+            }
+            h2 {
+                padding: 0;
+                margin: 0;
+            }
+            label {
+                display: block;
+                font-size: 1.1em;
+                margin-bottom: 5px;
+            }
+            label[hidden] {
+                display: none;
+            }
+            p.submit {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    <?php }
+
     /**
-     * Initialize the settings page
-     *
-     * @return void
+     * License form submit
      */
-	public function init_settings_page() {
-		register_setting(
-			$this->name . '_option_group', // option_group
-			$this->name . '_license_options', // option_name
-			[ $this, 'sanitize_settings' ] // sanitize_callback
-		);
-
-		add_settings_section(
-			$this->name . '_setting_section', // id
-			'', // title
-            '__return_false',
-			$this->name . '-admin' // page
-		);
-
-		add_settings_field(
-			'sc_license_key', // id
-			$this->client->__('Enter Your License Key'), // title
-			[ $this, 'license_key_callback' ], // callback
-			$this->name . '-admin', // page
-			$this->name . '_setting_section' // section
-		);
-
-        if ( isset( $_GET['debug'] ) ) {
-            add_settings_field(
-                'sc_license_id', // id
-                $this->client->__('License ID'), // title
-                [ $this, 'license_id_callback' ], // callback
-                $this->name . '-admin', // page
-                $this->name . '_setting_section' // section
-            );
-            add_settings_field(
-                'sc_activation_id', // id
-                $this->client->__('Activation Id'), // title
-                [ $this, 'activation_id_callback' ], // callback
-                $this->name . '-admin', // page
-                $this->name . '_setting_section' // section
-            );
+    public function license_form_submit( $form ) {
+        if ( ! isset( $form['_nonce'], $form['_action'] ) ) {
+            $this->add_error('missing_info', $this->client->__( 'Please add all information' ) );
+            return;
         }
-	}
+
+        if ( ! wp_verify_nonce( $form['_nonce'], $this->client->name ) ) {
+            $this->add_error('unauthorized', $this->client->__( "You don't have permission to manage licenses." ) );
+            return;
+        }
+
+        switch ( $form['_action'] ) {
+            case 'activate':
+                $activated = $this->client->license()->activate( sanitize_text_field( $form['license_key'] ) );
+                if ( is_wp_error( $activated ) ) {
+                    $this->add_error( $activated->get_error_code(), $activated->get_error_message() );
+                    return;
+                }
+
+                if ( ! empty( $this->menu_args['activated_redirect'] ) ) {
+                    wp_safe_redirect( $this->menu_args['activated_redirect'] );
+                    die();
+                }
+
+                $this->add_success( 'activated', $this->client->__( 'This site was successfully activated.', 'surecart' ) );
+                return;
+
+            case 'deactivate':
+                $deactivated = $this->client->license()->deactivate( sanitize_text_field( $form['activation_id'] ) );
+                if ( is_wp_error( $deactivated ) ) {
+                    $this->add_error($deactivated->get_error_code(), $deactivated->get_error_message() );
+                }
+
+                if ( ! empty( $this->menu_args['deactivated_redirect'] ) ) {
+                    wp_safe_redirect( $this->menu_args['deactivated_redirect'] );
+                    die();
+                }
+
+                $this->add_success( 'deactivated', $this->client->__( 'This site was successfully deactivated.', 'surecart' ) );
+                return;
+        }
+    }
 
     /**
      * Sanitize the api key.
@@ -291,8 +355,25 @@ class Settings {
         );
     }
 
+    /**
+     * Add an success message
+     *
+     * @param string $code Success code.
+     * @param string $message Success message.
+     *
+     * @return void
+     */
+    public function add_success( $code, $message ) {
+        add_settings_error(
+            $this->name . '_license_options', // matches what we registered in `register_setting
+            $code, // the succes code
+            $message,
+            'success',
+        );
+    }
+
 	public function license_key_callback() {
-        $key = $this->get_option('license_key');
+        $key = $this->get_option('sc_license_key');
 		printf(
 			'<input class="regular-text" type="password" autocomplete="off" name="' . $this->option_key . '[sc_license_key]" id="sc_license_key" value="%s">',
 			isset( $key ) ? esc_attr( $key ) : ''
@@ -300,7 +381,7 @@ class Settings {
 	}
 
     public function license_id_callback() {
-        $key = $this->get_option('license_id');
+        $key = $this->get_option('sc_license_id');
 		printf(
 			'<input class="regular-text" type="text" autocomplete="off" name="' . $this->option_key . '[sc_license_id]" id="sc_license_id" value="%s">',
 			isset( $key ) ? esc_attr( $key ) : ''
@@ -308,7 +389,7 @@ class Settings {
 	}
 
     public function activation_id_callback() {
-        $key = $this->get_option('activation_id');
+        $key = $this->get_option('sc_activation_id');
 		printf(
 			'<input class="regular-text" type="text" autocomplete="off" name="' . $this->option_key . '[sc_activation_id]" id="sc_activation_id" value="%s">',
 			isset( $key ) ? esc_attr( $key ) : ''
