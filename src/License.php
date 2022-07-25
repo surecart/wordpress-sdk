@@ -54,33 +54,51 @@ class License {
 	 * @param string $key A license key.
 	 *
 	 * @return \WP_Error|Object
+	 * @throws \Exception If something goes wrong.
 	 */
 	public function activate( $key = '' ) {
-		// get license.
-		$license = $this->retrieve( sanitize_text_field( $key ) );
-		if ( is_wp_error( $license ) ) {
-			return $license;
-		}
-		if ( empty( $license->id ) ) {
-			return new \WP_Error( 'not_found', $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
-		}
-		if ( 'revoked' === ( $license->status ?? 'revoked' ) ) {
-			return new \WP_Error( 'revoked', $this->client->__( 'This license is revoked.' ) );
-		}
+		try {
+			// get license.
+			$license = $this->retrieve( sanitize_text_field( $key ) );
+			if ( is_wp_error( $license ) ) {
+				if ( 'not_found' === $license->get_error_code() ) {
+					throw new \Exception( $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
+				}
+				throw new \Exception( $license->get_error_message() );
+			}
+			if ( 'revoked' === ( $license->status ?? 'revoked' ) ) {
+				throw new \Exception( $this->client->__( 'This license has been revoked. Please re-purchase to obtain a new license.' ) );
+			}
+			$this->client->settings()->license_key = $license->key;
+			$this->client->settings()->license_id  = $license->id;
 
-		// create the activation.
-		$activation = $this->client->activation()->create( $license->id );
-		if ( is_wp_error( $activation ) ) {
-			return $activation;
-		}
-		if ( empty( $activation->id ) ) {
-			return new \WP_Error( 'activation_failed', $this->client->__( 'Could not activate the license key.' ) );
-		}
+			// create the activation.
+			$activation = $this->client->activation()->create( $license->id );
+			if ( is_wp_error( $activation ) ) {
+				throw new \Exception( $activation->get_error_message() );
+			}
+			$this->client->settings()->activation_id = $activation->id;
 
-		// save activation data.
-		$this->client->settings()->activation_id = $activation->id;
-		$this->client->settings()->license_key   = $license->key;
-		$this->client->settings()->license_id    = $license->id;
+			$current_release = $this->get_current_release();
+			if ( is_wp_error( $current_release ) ) {
+				throw new \Exception( $current_release->get_error_message() );
+			}
+			// if there is no slug or it does not match.
+			if ( empty( $current_release->release_json->slug ) || $this->client->slug !== $current_release->release_json->slug ) {
+				throw new \Exception( $this->client->__( 'This license is not valid for this product.' ) );
+			}
+		} catch ( \Exception $e ) {
+			// undo activation.
+			$activation = $this->client->activation()->get();
+			if ( $activation ) {
+				$this->client->activation()->delete();
+			}
+
+			// on error, clear options.
+			$this->client->settings()->clear_options();
+			// return \WP_Error.
+			return new \WP_Error( 'error', $e->getMessage() );
+		}
 
 		return true;
 	}
