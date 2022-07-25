@@ -260,6 +260,9 @@ class Settings {
 	public function print_css() {
 		?>
 		<style>
+			.spinner {
+				float: none;
+			}
 			<?php echo '.' . esc_attr( $this->name ) . '-form-container'; ?> form {
 				padding:30px;
 				background: #fff;
@@ -367,6 +370,7 @@ class Settings {
 	 */
 	public function redirect( $url ) {
 		?>
+		<div class="spinner is-active"></div>
 		<script>
 			window.location.assign("<?php echo esc_url( $url ); ?>");
 		</script>
