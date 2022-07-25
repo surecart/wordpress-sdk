@@ -20,12 +20,9 @@ if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
 }
 ```
 
-
 ### Usage Example
 
 Please refer to the **installation** step before start using the class.
-
-You can obtain the **hash** for your plugin for the [Appsero Dashboard](https://dashboard.appsero.com). The 3rd parameter **must** have to be the main file of the plugin.
 
 ```php
 
@@ -36,18 +33,23 @@ if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
 // initialize client with your plugin name.
 $client = new \SureCart\Licensing\Client( 'Your Plugin', __FILE__ );
 
+// set your textdomain.
+$client->set_textdomain( 'your-textdomain' );
+
 // add the pre-built license settings page.
 $client->settings()->add_page( 
     [
-        'type'        => 'submenu', // Can be: menu, options, submenu
-        'parent_slug' => 'your-plugin-menu-slug', // add your plugin menu slug.
-        'page_title'  => 'Manage License',
-        'menu_title'  => 'Manage License',
-        'capability'  => 'manage_options',
-        'menu_slug'   => $this->client->slug . '-manage-license',
-        'icon_url'    => '',
-        'position'    => null,
-        'parent_slug' => '',
+	'type'                 => 'submenu', // Can be: menu, options, submenu.
+		'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
+		'page_title'           => 'Manage License',
+		'menu_title'           => 'Manage License',
+		'capability'           => 'manage_options',
+		'menu_slug'            => $this->client->slug . '-manage-license',
+		'icon_url'             => '',
+		'position'             => null,
+		'parent_slug'          => '',
+		'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
+		'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
     ] 
 );
 ```

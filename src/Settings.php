@@ -334,8 +334,8 @@ class Settings {
 			}
 
 			if ( ! empty( $this->menu_args['activated_redirect'] ) ) {
-				wp_safe_redirect( $this->menu_args['activated_redirect'] );
-				die();
+				$this->redirect( $this->menu_args['activated_redirect'] );
+				exit;
 			}
 
 			return $this->add_success( 'activated', $this->client->__( 'This site was successfully activated.', 'surecart' ) );
@@ -349,12 +349,28 @@ class Settings {
 			}
 
 			if ( ! empty( $this->menu_args['deactivated_redirect'] ) ) {
-				wp_safe_redirect( $this->menu_args['deactivated_redirect'] );
-				die();
+				$this->redirect( $this->menu_args['deactivated_redirect'] );
+				exit;
 			}
 
 			return $this->add_success( 'deactivated', $this->client->__( 'This site was successfully deactivated.', 'surecart' ) );
 		}
+	}
+
+	/**
+	 * Redirect to a url client-side.
+	 * We need to do this to avoid "headers already sent" messages.
+	 *
+	 * @param string $url Url to redirect.
+	 *
+	 * @return void
+	 */
+	public function redirect( $url ) {
+		?>
+		<script>
+			window.location.assign("<?php echo esc_url( $url ); ?>");
+		</script>
+		<?php
 	}
 
 	/**
