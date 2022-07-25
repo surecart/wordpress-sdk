@@ -255,13 +255,6 @@ class Client {
                 return new \WP_Error('not_found', $this->__( 'Not found' ));
             }
 
-            if( ! empty( $response_body->validation_errors[0]->code ) ) {
-                switch( $response_body->validation_errors[0]->code) {
-                    case 'activation.fingerprint.taken';
-                        return new \WP_Error( 'already_activated', $this->__( 'You have already activated the license for this site.' ) );
-                }
-            }
-
             if ( ! empty( $response_body->code ) && ! empty( $response_body->message ) ) {
                 return new \WP_Error( $response_body->code, esc_html( $response_body->message ) );
             }

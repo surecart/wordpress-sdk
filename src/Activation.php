@@ -76,6 +76,29 @@ class Activation {
     }
 
     /**
+     * Get cached activation
+     *
+     * @return boolean
+     */
+    public function get_cached( $id ) {
+        $activation = get_transient( $this->client->name . '_activation_cache' );
+        if ( false === $activation) {
+            $activation = $this->get( $id );
+            set_transient( $this->client->name . '_activation_cache', $activation, 6 * HOUR_IN_SECONDS );
+        }
+        return $activation;
+    }
+
+    /**
+     * Clear cached activation.
+     *
+     * @return boolean
+     */
+    public function clear_cached( ) {
+        return delete_transient( $this->client->name . '_activation_cache' );
+    } 
+
+    /**
      * Retrieves details of a specific activation.
      * 
      * @param string $id The id of the activation.

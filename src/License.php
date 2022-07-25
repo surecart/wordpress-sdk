@@ -123,11 +123,12 @@ class License {
             return;
         }
 
-        $route    = trailingslashit( $this->endpoint ) . $key . '/expose_current_release';
-        return $this->client->send_request( 'GET', $route, [
+        $route  = add_query_arg( [
             'activation_id' => $activation_id,
             'expose_for' => $expires_in
-        ] );
+        ], trailingslashit( $this->endpoint ) . $key . '/expose_current_release' );
+
+        return $this->client->send_request( 'GET', $route );
     }
 
     /**
@@ -158,6 +159,16 @@ class License {
 
         // return validity.
         return $this->is_valid_license;
+    }
+
+    public function is_active() {
+        if ( empty( $this->client->settings()->activation_id ) ) {
+            return false;
+        }
+
+        $activation = $this->client->activation()->get( $this->client->settings()->activation_id );
+
+        return ! empty( $activation->id );
     }
 
     /**

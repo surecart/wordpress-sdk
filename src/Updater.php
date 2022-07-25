@@ -161,10 +161,6 @@ class Updater {
             $release->last_updated = date_i18n( get_option('date_format'), $current_release->updated_at ?? time() );
         }
 
-        if( isset( $current_release->url ) ) {
-            $release->download_url = $current_release->url;
-        }
-
         if ( isset( $release->banners ) ) {
             $release->banners = (array) $release->banners;
         }

@@ -204,8 +204,9 @@ class Settings {
         }
 
         $this->print_css();
-        $activation_id = $this->activation_id;
-        $action = $activation_id ? 'deactivate' : 'activate' 
+        
+        $activation = $this->get_activation();
+        $action     = !empty( $activation->id ) ? 'deactivate' : 'activate' 
         ?>
 
 		<div class="wrap">
@@ -219,8 +220,17 @@ class Settings {
                     <input type="hidden" name="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>">
 
                     <h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
-                    <label for="license_key"><?php echo esc_html( sprintf( $this->client->__('Enter your license key to activate %s.', 'surecart'), $this->client->name ) ); ?></label>
-                    <input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
+                    <label for="license_key">
+                        <?php if ( 'activate' === $action ) : ?> 
+                            <?php echo esc_html( sprintf( $this->client->__('Enter your license key to activate %s.', 'surecart'), $this->client->name ) ); ?>
+                        <?php else: ?>
+                            <?php echo esc_html( sprintf( $this->client->__('Your license is succesfully activated for this site.', 'surecart'), $this->client->name ) ); ?>
+                        <?php endif; ?>
+                    </label>
+
+                    <?php if ( 'activate' === $action ) : ?> 
+                        <input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
+                    <?php endif; ?>
 
                     <?php if ( !empty( $_GET['debug'] ) ) : ?>
                         <label for="license_id"><?php echo esc_html( sprintf( $this->client->__('License ID', 'surecart'), $this->client->name ) ); ?></label>
@@ -235,6 +245,18 @@ class Settings {
             </div>
 		</div>
 		<?php
+    }
+
+    public function get_activation() {
+        $activation = false;
+        if ( $this->activation_id ) {
+            $activation = $this->client->activation()->get( $this->activation_id );
+            if ( is_wp_error( $activation ) ) {
+                $this->add_error('deactivaed', $this->client->__('Your license has been deactivated for this site.', 'surecart') );
+                $this->clear_options();
+            }
+        }
+        return $activation;
     }
 
     public function print_css() { ?>
@@ -371,30 +393,6 @@ class Settings {
             'success',
         );
     }
-
-	public function license_key_callback() {
-        $key = $this->get_option('sc_license_key');
-		printf(
-			'<input class="regular-text" type="password" autocomplete="off" name="' . $this->option_key . '[sc_license_key]" id="sc_license_key" value="%s">',
-			isset( $key ) ? esc_attr( $key ) : ''
-		);
-	}
-
-    public function license_id_callback() {
-        $key = $this->get_option('sc_license_id');
-		printf(
-			'<input class="regular-text" type="text" autocomplete="off" name="' . $this->option_key . '[sc_license_id]" id="sc_license_id" value="%s">',
-			isset( $key ) ? esc_attr( $key ) : ''
-		);
-	}
-
-    public function activation_id_callback() {
-        $key = $this->get_option('sc_activation_id');
-		printf(
-			'<input class="regular-text" type="text" autocomplete="off" name="' . $this->option_key . '[sc_activation_id]" id="sc_activation_id" value="%s">',
-			isset( $key ) ? esc_attr( $key ) : ''
-		);
-	}
 
     /**
 	 * Set an option.
