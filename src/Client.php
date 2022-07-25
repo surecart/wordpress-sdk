@@ -278,7 +278,7 @@ class Client {
 	 * @return boolean
 	 */
 	public function is_local_server() {
-		$is_local = in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ) );
+		$is_local = in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true );
 		return apply_filters( 'surecart_licensing_is_local', $is_local );
 	}
 
@@ -293,6 +293,8 @@ class Client {
 
 	/**
 	 * Set project textdomain.
+	 *
+	 * @param string $textdomain The textdomain for translations.
 	 */
 	public function set_textdomain( $textdomain ) {
 		$this->textdomain = $textdomain;

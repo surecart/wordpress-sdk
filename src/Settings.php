@@ -36,6 +36,8 @@ class Settings {
 
 	/**
 	 * Create the pages.
+	 *
+	 * @param SureCart\Licensing\Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client     = $client;
@@ -204,9 +206,7 @@ class Settings {
 	 * @return void
 	 */
 	public function settings_output() {
-		if ( isset( $_POST['submit'] ) ) {
-			$this->license_form_submit();
-		}
+		$this->license_form_submit();
 
 		$this->print_css();
 
@@ -221,7 +221,7 @@ class Settings {
 			<div class="<?php echo esc_attr( $this->name ) . '-form-container'; ?>">
 				<form method="post" action="<?php echo esc_attr( $this->form_action_url() ); ?>">
 					<input type="hidden" name="_action" value="<?php echo esc_attr( $action ); ?>">
-					<input type="hidden" name="_nonce" value="<?php echo wp_create_nonce( $this->client->name ); ?>">
+					<input type="hidden" name="_nonce" value="<?php echo esc_attr( wp_create_nonce( $this->client->name ) ); ?>">
 					<input type="hidden" name="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>">
 
 					<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
@@ -237,7 +237,7 @@ class Settings {
 						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
 					<?php endif; ?>
 
-					<?php if ( ! empty( $_GET['debug'] ) ) : ?>
+					<?php if ( isset( $_GET['debug'] ) ) : // phpcs:ignore  ?>
 						<label for="license_id"><?php echo esc_html( sprintf( $this->client->__( 'License ID', 'surecart' ), $this->client->name ) ); ?></label>
 						<input class="widefat" type="text" autocomplete="off" name="license_id" id="license_id" value="<?php echo esc_attr( $this->license_id ); ?>" autofocus>
 
@@ -308,6 +308,11 @@ class Settings {
 	 * License form submit
 	 */
 	public function license_form_submit() {
+		// only if we are submitting.
+		if ( ! isset( $_POST['submit'] ) ) {
+			return;
+		}
+
 		// Check nonce.
 		if ( ! isset( $_POST['_nonce'], $_POST['_action'] ) ) {
 			$this->add_error( 'missing_info', $this->client->__( 'Please add all information' ) );

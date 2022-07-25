@@ -50,6 +50,8 @@ class Updater {
 
 	/**
 	 * Check for Update for this specific project.
+	 *
+	 * @param Object $transient_data Transient data for update.
 	 */
 	public function check_plugin_update( $transient_data ) {
 		global $pagenow;
@@ -104,6 +106,8 @@ class Updater {
 
 	/**
 	 * Set version info to database.
+	 *
+	 * @param Object $value Version info to store in the transient.
 	 */
 	private function set_cached_version_info( $value ) {
 		if ( ! $value ) {
@@ -178,6 +182,8 @@ class Updater {
 
 	/**
 	 * Check theme update.
+	 *
+	 * @param Object $transient_data Transient data for the update.
 	 */
 	public function check_theme_update( $transient_data ) {
 		global $pagenow;
@@ -186,7 +192,7 @@ class Updater {
 			$transient_data = new \stdClass();
 		}
 
-		if ( 'themes.php' == $pagenow && is_multisite() ) {
+		if ( 'themes.php' === $pagenow && is_multisite() ) {
 			return $transient_data;
 		}
 
