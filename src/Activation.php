@@ -4,7 +4,6 @@ namespace SureCart\Licensing;
 
 /**
  * Activation model
- *
  */
 class Activation {
     /**
@@ -46,9 +45,10 @@ class Activation {
      */
     public function create( $license_id ) {
         if ( empty( $license_id ) ) {
-            return new \WP_Error( 'missing_key', $this->client->__('Please enter a license key') );
+            return new \WP_Error( 'missing_key', $this->client->__( 'Please enter a license key' ) );
         }
 
+        // send the activation request.
         $activation = $this->client->send_request( 
             'POST',
             trailingslashit( $this->endpoint ), 
@@ -74,29 +74,6 @@ class Activation {
         // return the activation.
         return $activation;
     }
-
-    /**
-     * Get cached activation
-     *
-     * @return boolean
-     */
-    public function get_cached( $id ) {
-        $activation = get_transient( $this->client->name . '_activation_cache' );
-        if ( false === $activation) {
-            $activation = $this->get( $id );
-            set_transient( $this->client->name . '_activation_cache', $activation, 6 * HOUR_IN_SECONDS );
-        }
-        return $activation;
-    }
-
-    /**
-     * Clear cached activation.
-     *
-     * @return boolean
-     */
-    public function clear_cached( ) {
-        return delete_transient( $this->client->name . '_activation_cache' );
-    } 
 
     /**
      * Retrieves details of a specific activation.

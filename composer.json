@@ -21,6 +21,12 @@
     "wp-phpunit/wp-phpunit": "^6.0",
     "mockery/mockery": "^1.5",
     "yoast/phpunit-polyfills": "^1.0",
-    "phpunit/php-code-coverage": "^9.2"
+    "wp-coding-standards/wpcs": "^2.3",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

@@ -2,14 +2,11 @@
 namespace SureCart\Licensing;
 
 /**
- * YourProject Updater
- *
- * This class will show new updates project
+ * This class will handle the updates.
  */
 class Updater {
-
     /**
-     * YourProject\Client
+     * SureCart\Licensing\Client
      *
      * @var object
      */
@@ -18,7 +15,7 @@ class Updater {
     /**
      * Initialize the class
      *
-     * @param YourProject\Client
+     * @param SureCart\Licensing\Client
      */
     public function __construct( Client $client ) {
         $this->client    = $client;
@@ -97,33 +94,12 @@ class Updater {
      */
     private function get_cached_version_info() {
         global $pagenow;
-
-        // If updater page then fetch from API now
+        // If updater page then force fetch.
         if ( 'update-core.php' == $pagenow ) {
             return false; // Force to fetch data
         }
 
-        $value = get_transient( $this->cache_key );
-
-        if( ! $value && ! isset( $value->name ) ) {
-            return false; // Cache is expired
-        }
-
-        // We need to turn the icons into an array
-        if ( isset( $value->icons ) ) {
-            $value->icons = (array) $value->icons;
-        }
-
-        // We need to turn the banners into an array
-        if ( isset( $value->banners ) ) {
-            $value->banners = (array) $value->banners;
-        }
-
-        if ( isset( $value->sections ) ) {
-            $value->sections = (array) $value->sections;
-        }
-
-        return $value;
+        return get_transient( $this->cache_key );
     }
 
     /**
@@ -133,12 +109,12 @@ class Updater {
         if ( ! $value ) {
             return;
         }
-
+        // cache for 3 hours.
         set_transient( $this->cache_key, $value, 3 * HOUR_IN_SECONDS );
     }
 
     /**
-     * Get plugin info from YourProject
+     * Get plugin info from SureCart\Licensing
      */
     private function get_project_latest_version() {
         $current_release = $this->client->license()->get_current_release();
@@ -238,7 +214,7 @@ class Updater {
      * Get version information
      */
     private function get_version_info() {
-        $version_info = false; //$this->get_cached_version_info();
+        $version_info = $this->get_cached_version_info();
 
         if ( false === $version_info ) {
             $version_info = $this->get_project_latest_version();
@@ -247,5 +223,4 @@ class Updater {
 
         return $version_info;
     }
-
 }

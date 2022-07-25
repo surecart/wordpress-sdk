@@ -2,6 +2,9 @@
 
 namespace SureCart\Licensing;
 
+/**
+ * The settings class.
+ */
 class Settings {
     /**
      * SureCart\Licensing\Client
@@ -46,6 +49,7 @@ class Settings {
      * @return void
      */
 	public function add_page( $args ) {
+        // store menu args for proper menu creation.
         $this->menu_args = wp_parse_args( $args, [
             'type'        => 'menu', // Can be: menu, options, submenu
             'page_title'  => 'Manage License',
@@ -68,7 +72,7 @@ class Settings {
     }
 
     /**
-     * Set the license option key.
+     * Set the option key.
      *
      * If someone wants to override the default generated key.
      *
@@ -247,18 +251,11 @@ class Settings {
 		<?php
     }
 
-    public function get_activation() {
-        $activation = false;
-        if ( $this->activation_id ) {
-            $activation = $this->client->activation()->get( $this->activation_id );
-            if ( is_wp_error( $activation ) ) {
-                $this->add_error('deactivaed', $this->client->__('Your license has been deactivated for this site.', 'surecart') );
-                $this->clear_options();
-            }
-        }
-        return $activation;
-    }
-
+        /**
+     * Print the css for the form.
+     *
+     * @return void
+     */
     public function print_css() { ?>
         <style>
             <?php echo '.' . esc_attr( $this->name ) . '-form-container'; ?> form {
@@ -288,77 +285,87 @@ class Settings {
     <?php }
 
     /**
+     * Get the activation.
+     *
+     * @return Object|false
+     */
+    public function get_activation() {
+        $activation = false;
+        if ( $this->activation_id ) {
+            $activation = $this->client->activation()->get( $this->activation_id );
+            if ( is_wp_error( $activation ) ) {
+                $this->add_error('deactivaed', $this->client->__('Your license has been deactivated for this site.', 'surecart') );
+                $this->clear_options();
+            }
+        }
+        return $activation;
+    }
+
+    /**
      * License form submit
      */
     public function license_form_submit( $form ) {
+        // Check nonce.
         if ( ! isset( $form['_nonce'], $form['_action'] ) ) {
             $this->add_error('missing_info', $this->client->__( 'Please add all information' ) );
             return;
         }
 
+        // Cerify nonce.
         if ( ! wp_verify_nonce( $form['_nonce'], $this->client->name ) ) {
             $this->add_error('unauthorized', $this->client->__( "You don't have permission to manage licenses." ) );
             return;
         }
 
-        switch ( $form['_action'] ) {
-            case 'activate':
-                $activated = $this->client->license()->activate( sanitize_text_field( $form['license_key'] ) );
-                if ( is_wp_error( $activated ) ) {
-                    $this->add_error( $activated->get_error_code(), $activated->get_error_message() );
-                    return;
-                }
-
-                if ( ! empty( $this->menu_args['activated_redirect'] ) ) {
-                    wp_safe_redirect( $this->menu_args['activated_redirect'] );
-                    die();
-                }
-
-                $this->add_success( 'activated', $this->client->__( 'This site was successfully activated.', 'surecart' ) );
+        // handle activation.
+        if ( 'activate' === $form['_action'] ) {
+            $activated = $this->client->license()->activate( sanitize_text_field( $form['license_key'] ) );
+            if ( is_wp_error( $activated ) ) {
+                $this->add_error( $activated->get_error_code(), $activated->get_error_message() );
                 return;
+            }
 
-            case 'deactivate':
-                $deactivated = $this->client->license()->deactivate( sanitize_text_field( $form['activation_id'] ) );
-                if ( is_wp_error( $deactivated ) ) {
-                    $this->add_error($deactivated->get_error_code(), $deactivated->get_error_message() );
-                }
+            if ( ! empty( $this->menu_args['activated_redirect'] ) ) {
+                wp_safe_redirect( $this->menu_args['activated_redirect'] );
+                die();
+            }
 
-                if ( ! empty( $this->menu_args['deactivated_redirect'] ) ) {
-                    wp_safe_redirect( $this->menu_args['deactivated_redirect'] );
-                    die();
-                }
+            return $this->add_success( 'activated', $this->client->__( 'This site was successfully activated.', 'surecart' ) );
+        }
 
-                $this->add_success( 'deactivated', $this->client->__( 'This site was successfully deactivated.', 'surecart' ) );
-                return;
+        // handle deactivation.
+        if ( 'deactivate' === $form['_action'] ) {
+            $deactivated = $this->client->license()->deactivate( sanitize_text_field( $form['activation_id'] ) );
+            if ( is_wp_error( $deactivated ) ) {
+                $this->add_error($deactivated->get_error_code(), $deactivated->get_error_message() );
+            }
+
+            if ( ! empty( $this->menu_args['deactivated_redirect'] ) ) {
+                wp_safe_redirect( $this->menu_args['deactivated_redirect'] );
+                die();
+            }
+
+            return $this->add_success( 'deactivated', $this->client->__( 'This site was successfully deactivated.', 'surecart' ) );
         }
     }
 
-    /**
-     * Sanitize the api key.
+     /**
+     * Add a notice.
      *
-     * @param array $input Array of input values.
+     * @param string $code Notice code.
+     * @param string $message Notice message.
+     * @param string $type Notice type.
      *
-     * @return array sanitized values.
+     * @return void
      */
-	public function sanitize_settings( $input ) {
-		$sanitary_values = array();
-		if ( isset( $input['sc_license_key'] ) ) {
-			$sanitary_values['sc_license_key'] = sanitize_text_field( $input['sc_license_key'] );
-            
-            $valid = $this->client->license()->activate( $sanitary_values['sc_license_key'] );
-
-            if ( is_wp_error( $valid ) ) {
-                $this->add_error( $valid->get_error_code(), $valid->get_error_message() );
-                return;
-            }
-            if ( ! $valid ) {
-                $this->add_error( 'not_found', $this->client->__( 'This is not a valid license. Please double check and try again.' ) );
-                return;
-            }            
-		}
-
-		return $sanitary_values;
-	}
+    public function add_notice( $code, $message, $type = 'info' ) {
+        add_settings_error(
+            $this->name . '_license_options', // matches what we registered in `register_setting
+            $code, // the error code
+            $message,
+            $type,
+        );
+    }
 
     /**
      * Add an error.
@@ -369,12 +376,7 @@ class Settings {
      * @return void
      */
     public function add_error( $code, $message ) {
-        add_settings_error(
-            $this->name . '_license_options', // matches what we registered in `register_setting
-            $code, // the error code
-            $message,
-            'error',
-        );
+        $this->add_notice( $code, $message, 'error');
     }
 
     /**
@@ -386,12 +388,7 @@ class Settings {
      * @return void
      */
     public function add_success( $code, $message ) {
-        add_settings_error(
-            $this->name . '_license_options', // matches what we registered in `register_setting
-            $code, // the succes code
-            $message,
-            'success',
-        );
+        $this->add_notice( $code, $message, 'success');
     }
 
     /**
