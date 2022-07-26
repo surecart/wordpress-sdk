@@ -58,42 +58,22 @@ class License {
 	 */
 	public function activate( $key = '' ) {
 		try {
-			// get license.
-			$license = $this->retrieve( sanitize_text_field( $key ) );
-			if ( is_wp_error( $license ) ) {
-				if ( 'not_found' === $license->get_error_code() ) {
-					throw new \Exception( $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
-				}
-				throw new \Exception( $license->get_error_message() );
-			}
-			if ( 'revoked' === ( $license->status ?? 'revoked' ) ) {
-				throw new \Exception( $this->client->__( 'This license has been revoked. Please re-purchase to obtain a new license.' ) );
-			}
-			$this->client->settings()->license_key = $license->key;
-			$this->client->settings()->license_id  = $license->id;
-
+			// validate the license and store it.
+			$license = $this->validate( $key, true );
 			// create the activation.
 			$activation = $this->client->activation()->create( $license->id );
 			if ( is_wp_error( $activation ) ) {
 				throw new \Exception( $activation->get_error_message() );
 			}
 			$this->client->settings()->activation_id = $activation->id;
-
-			$current_release = $this->get_current_release();
-			if ( is_wp_error( $current_release ) ) {
-				throw new \Exception( $current_release->get_error_message() );
-			}
-			// if there is no slug or it does not match.
-			if ( empty( $current_release->release_json->slug ) || $this->client->slug !== $current_release->release_json->slug ) {
-				throw new \Exception( $this->client->__( 'This license is not valid for this product.' ) );
-			}
+			// validate the release.
+			$this->validate_release();
 		} catch ( \Exception $e ) {
 			// undo activation.
 			$activation = $this->client->activation()->get();
 			if ( $activation ) {
 				$this->client->activation()->delete();
 			}
-
 			// on error, clear options.
 			$this->client->settings()->clear_options();
 			// return \WP_Error.
@@ -140,12 +120,12 @@ class License {
 	public function get_current_release( $expires_in = 900 ) {
 		$key = $this->client->settings()->license_key;
 		if ( empty( $key ) ) {
-			return;
+			return new \WP_Error( 'license_key_missing', $this->client->__( 'Please enter a license key.' ) );
 		}
 
 		$activation_id = $this->client->settings()->activation_id;
 		if ( empty( $activation_id ) ) {
-			return;
+			return new \WP_Error( 'activation_id_missing', $this->client->__( 'This license is not yet activated.' ) );
 		}
 
 		$route = add_query_arg(
@@ -157,6 +137,56 @@ class License {
 		);
 
 		return $this->client->send_request( 'GET', $route );
+	}
+
+	/**
+	 * Validate a license key.
+	 *
+	 * @param string  $key The license key.
+	 * @param boolean $store Should we store the key and id.
+	 * @return Object
+	 * @throws \Exception If the license is not valid.
+	 */
+	public function validate( $key, $store = false ) {
+		// get license.
+		$license = $this->retrieve( sanitize_text_field( $key ) );
+		if ( is_wp_error( $license ) ) {
+			if ( 'not_found' === $license->get_error_code() ) {
+				throw new \Exception( $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
+			}
+			throw new \Exception( $license->get_error_message() );
+		}
+		if ( empty( $license->id ) ) {
+			throw new \Exception( $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
+		}
+		if ( 'revoked' === ( $license->status ?? 'revoked' ) ) {
+			throw new \Exception( $this->client->__( 'This license has been revoked. Please re-purchase to obtain a new license.' ) );
+		}
+
+		if ( $store ) {
+			$this->client->settings()->license_key = $license->key;
+			$this->client->settings()->license_id  = $license->id;
+		}
+
+		return $license;
+	}
+
+	/**
+	 * Validate the current release.
+	 *
+	 * @return Object
+	 * @throws \Exception If the release is not valid.
+	 */
+	public function validate_release() {
+		$current_release = $this->get_current_release();
+		if ( is_wp_error( $current_release ) ) {
+			throw new \Exception( $current_release->get_error_message() );
+		}
+			// if there is no slug or it does not match.
+		if ( empty( $current_release->release_json->slug ) || $this->client->slug !== $current_release->release_json->slug ) {
+			throw new \Exception( $this->client->__( 'This license is not valid for this product.' ) );
+		}
+		return $current_release;
 	}
 
 	/**
