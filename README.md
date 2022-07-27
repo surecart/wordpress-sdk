@@ -77,16 +77,16 @@ $client->set_textdomain( 'your-textdomain' );
 $client->settings()->add_page( 
     [
 	'type'                 => 'submenu', // Can be: menu, options, submenu.
-		'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
-		'page_title'           => 'Manage License',
-		'menu_title'           => 'Manage License',
-		'capability'           => 'manage_options',
-		'menu_slug'            => $this->client->slug . '-manage-license',
-		'icon_url'             => '',
-		'position'             => null,
-		'parent_slug'          => '',
-		'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
-		'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
+	'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
+	'page_title'           => 'Manage License',
+	'menu_title'           => 'Manage License',
+	'capability'           => 'manage_options',
+	'menu_slug'            => $this->client->slug . '-manage-license',
+	'icon_url'             => '',
+	'position'             => null,
+	'parent_slug'          => '',
+	'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
+	'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
     ] 
 );
 ```
