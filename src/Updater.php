@@ -121,7 +121,7 @@ class Updater {
 	 * Get plugin info from SureCart\Licensing
 	 */
 	private function get_project_latest_version() {
-		$current_release = $this->client->license()->get_current_release();
+		$current_release = $this->client->license()->get_current_release( 3 * HOUR_IN_SECONDS );
 
 		if ( is_wp_error( $current_release ) || empty( $current_release ) ) {
 			return false;
