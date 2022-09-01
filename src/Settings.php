@@ -41,7 +41,7 @@ class Settings {
 	 */
 	public function __construct( Client $client ) {
 		$this->client     = $client;
-		$this->name       = strtolower( $this->client->name );
+		$this->name       = strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
 		$this->option_key = $this->name . '_license_options';
 	}
 
