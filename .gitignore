@@ -16,3 +16,4 @@ yarn-error.log
 composer.lock
 release.json
 surecart-plugin-example.php
+wordpress-sdk.php
