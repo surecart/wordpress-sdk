@@ -208,6 +208,15 @@ class Client {
 
 			$plugin_data = get_plugin_data( $this->file );
 
+			if ( empty( $plugin_data['Version'] ) ) {
+				add_action(
+					'admin_notices',
+					function() {
+						printf( '<div class="notice notice-error"><p>' . esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your plugin.</p></div>' );
+					}
+				);
+			}
+
 			$this->project_version = $plugin_data['Version'];
 			$this->type            = 'plugin';
 
@@ -220,7 +229,17 @@ class Client {
 			$theme = wp_get_theme( $this->slug );
 
 			$this->project_version = $theme->version;
-			$this->type            = 'theme';
+
+			if ( empty( $theme->version ) ) {
+				add_action(
+					'admin_notices',
+					function() {
+						printf( '<div class="notice notice-error"><p>' . esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your theme.</p></div>' );
+					}
+				);
+			}
+
+			$this->type = 'theme';
 		}
 
 		$this->textdomain = $this->slug;
