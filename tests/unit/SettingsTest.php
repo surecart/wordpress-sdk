@@ -17,7 +17,7 @@ class SettingsTest extends \WP_UnitTestCase {
 		$this->assertSame( $value, $this->client->settings()->get_options()[ 'sc_' . $property ] );
 	}
 
-	public function propertyProvider(): array {
+	public function propertyProvider() {
 		return array(
 			'license id'    => array( 'license_id', 'test_id' ),
 			'license key'   => array( 'license_key', 'test_key' ),

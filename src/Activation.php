@@ -86,7 +86,7 @@ class Activation {
 	public function get( $id = '' ) {
 		return $this->client->send_request(
 			'GET',
-			trailingslashit( $this->endpoint ) . $id,
+			trailingslashit( $this->endpoint ) . $id
 		);
 	}
 
@@ -124,7 +124,7 @@ class Activation {
 	public function delete( $id = '' ) {
 		return $this->client->send_request(
 			'DELETE',
-			trailingslashit( $this->endpoint ) . $id,
+			trailingslashit( $this->endpoint ) . $id
 		);
 	}
 }

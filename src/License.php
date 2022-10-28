@@ -159,7 +159,7 @@ class License {
 		if ( empty( $license->id ) ) {
 			throw new \Exception( $this->client->__( 'This is not a valid license. Please double-check it and try again.' ) );
 		}
-		if ( 'revoked' === ( $license->status ?? 'revoked' ) ) {
+		if ( 'revoked' === ( isset( $license->status ) ? $license->status : 'revoked' ) ) {
 			throw new \Exception( $this->client->__( 'This license has been revoked. Please re-purchase to obtain a new license.' ) );
 		}
 

@@ -138,7 +138,7 @@ class Updater {
 		$release->new_version = $release->version;
 
 		if ( empty( $release->last_updated ) ) {
-			$release->last_updated = date_i18n( get_option( 'date_format' ), $current_release->updated_at ?? time() );
+			$release->last_updated = date_i18n( get_option( 'date_format' ), isset( $current_release->updated_at ) ? $current_release->updated_at : time() );
 		}
 
 		if ( isset( $current_release->url ) ) {
