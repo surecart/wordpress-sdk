@@ -6,28 +6,28 @@
  * @package Presto Player
  */
 
-require_once dirname(dirname(__FILE__)) . '/vendor/autoload.php';
+require_once dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 // Determine the tests directory (from a WP dev checkout).
 // Try the WP_TESTS_DIR environment variable first.
-$_tests_dir = getenv('WP_TESTS_DIR');
+$_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 // Next, try the WP_PHPUNIT composer package.
-if (!$_tests_dir) {
-    $_tests_dir = getenv('WP_PHPUNIT__DIR');
+if ( ! $_tests_dir ) {
+	$_tests_dir = getenv( 'WP_PHPUNIT__DIR' );
 }
 
 // See if we're installed inside an existing WP dev instance.
-if (!$_tests_dir) {
-    $_try_tests_dir = dirname(__FILE__) . '/../../tests/phpunit';
-    if (file_exists($_try_tests_dir . '/includes/functions.php')) {
-        $_tests_dir = $_try_tests_dir;
-    }
+if ( ! $_tests_dir ) {
+	$_try_tests_dir = dirname( __FILE__ ) . '/../../tests/phpunit';
+	if ( file_exists( $_try_tests_dir . '/includes/functions.php' ) ) {
+		$_tests_dir = $_try_tests_dir;
+	}
 }
 
 // Fallback.
-if (!$_tests_dir) {
-    $_tests_dir = '/tmp/wordpress-tests-lib';
+if ( ! $_tests_dir ) {
+	$_tests_dir = '/tmp/wordpress-tests-lib';
 }
 
 // Give access to tests_add_filter() function.
@@ -36,16 +36,15 @@ require_once $_tests_dir . '/includes/functions.php';
 /**
  * Manually load the plugin being tested.
  */
-function _manually_load_plugin()
-{
-    // Update array with plugins to include
-    $plugins_to_active = array(
-        'surecart-plugin-example.php',
-    );
+function _manually_load_plugin() {
+	// Update array with plugins to include.
+	$plugins_to_active = array(
+		'surecart-plugin-example.php',
+	);
 
-    update_option('active_plugins', $plugins_to_active);
+	update_option( 'active_plugins', $plugins_to_active );
 }
-tests_add_filter('muplugins_loaded', '_manually_load_plugin');
+tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 
 /**
@@ -60,19 +59,18 @@ tests_add_filter('muplugins_loaded', '_manually_load_plugin');
  *
  * @throws Exception When a `wp_die()` occurs.
  */
-function fail_if_died($message)
-{
-    if (is_wp_error($message)) {
-        $message = $message->get_error_message();
-    }
+function fail_if_died( $message ) {
+	if ( is_wp_error( $message ) ) {
+		$message = $message->get_error_message();
+	}
 
-    throw new Exception('WordPress died: ' . $message);
+	throw new Exception( 'WordPress died: ' . $message );
 }
-tests_add_filter('wp_die_handler', 'fail_if_died');
+tests_add_filter( 'wp_die_handler', 'fail_if_died' );
 
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
 
 // Use existing behavior for wp_die during actual test execution.
-// remove_filter('wp_die_handler', 'fail_if_died');
+// remove_filter('wp_die_handler', 'fail_if_died');.

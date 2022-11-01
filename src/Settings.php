@@ -183,7 +183,7 @@ class Settings {
 	 */
 	public function get_option( $name ) {
 		$options = $this->get_options();
-		return $options[ $name ] ?? null;
+		return isset( $options[ $name ] ) ? $options[ $name ] : null;
 	}
 
 	/**
@@ -391,7 +391,7 @@ class Settings {
 			$this->name . '_license_options', // matches what we registered in `register_setting.
 			$code, // the error code.
 			$message,
-			$type,
+			$type
 		);
 	}
 

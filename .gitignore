@@ -13,7 +13,7 @@ yarn-error.log
 .env
 .phpunit.result.cache
 .DS_Store
-composer.lock
+# composer.lock
 release.json
 surecart-plugin-example.php
 wordpress-sdk.php
