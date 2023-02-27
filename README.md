@@ -81,7 +81,7 @@ $client->settings()->add_page(
 	'page_title'           => 'Manage License',
 	'menu_title'           => 'Manage License',
 	'capability'           => 'manage_options',
-	'menu_slug'            => $this->client->slug . '-manage-license',
+	'menu_slug'            => $client->slug . '-manage-license',
 	'icon_url'             => '',
 	'position'             => null,
 	'parent_slug'          => '',
