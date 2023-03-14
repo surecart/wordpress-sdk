@@ -13,6 +13,13 @@ class Updater {
 	protected $client;
 
 	/**
+	 * SureCart\Licensing\Client
+	 *
+	 * @var string
+	 */
+	protected $cache_key;
+
+	/**
 	 * Initialize the class
 	 *
 	 * @param SureCart\Licensing\Client $client The client.
