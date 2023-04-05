@@ -255,7 +255,7 @@ class Client {
 	 *
 	 * @return array|WP_Error   Array of results including HTTP headers or WP_Error if the request failed.
 	 */
-	public function send_request( $method = 'POST', $route, $body = null, $blocking = true ) {
+	public function send_request( $method = 'POST', $route = '', $body = null, $blocking = true ) {
 		$response = wp_remote_request(
 			$this->endpoint() . $route,
 			array(
