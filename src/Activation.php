@@ -16,7 +16,7 @@ class Activation {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var SureCart\Licensing\Client
 	 */
 	protected $client;
 

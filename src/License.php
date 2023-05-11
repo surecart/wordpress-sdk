@@ -16,7 +16,7 @@ class License {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var SureCart\Licensing\Client
 	 */
 	protected $client;
 
@@ -182,7 +182,8 @@ class License {
 		if ( is_wp_error( $current_release ) ) {
 			throw new \Exception( $current_release->get_error_message() );
 		}
-			// if there is no slug or it does not match.
+
+		// if there is no slug or it does not match.
 		if ( empty( $current_release->release_json->slug ) || $this->client->slug !== $current_release->release_json->slug ) {
 			throw new \Exception( $this->client->__( 'This license is not valid for this product.' ) );
 		}
