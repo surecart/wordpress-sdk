@@ -173,6 +173,9 @@ class Settings {
 	 * @return bool
 	 */
 	public function clear_options() {
+		// Clear the cache, it will be triggered on cache-deactivated and on cache-expired.
+		delete_transient( 'surecart_activation_data' );
+
 		return update_option( $this->option_key, array() );
 	}
 

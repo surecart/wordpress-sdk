@@ -106,8 +106,6 @@ class License {
 			return $deactivated;
 		}
 
-		delete_transient( 'surecart_activation_data' );
-
 		$this->client->settings()->clear_options();
 		return true;
 	}
