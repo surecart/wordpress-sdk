@@ -114,3 +114,23 @@ You may set your own textdomain to translate text.
 ```php
 $client->set_textdomain( 'your-project-textdomain' );
 ```
+
+## Get the license activation information
+```php
+$client->settings()->get_activation();
+```
+
+#### Activation Response Demo
+
+```json
+{
+    "id" : "xxxxxxxxxxxxx",
+    "object" : "activation",
+    "counted" : true,
+    "name" : "SiteName",
+    "fingerprint" : "http://site.com",
+    "license" : "xxxxxxxxxx",
+    "created_at" : 1683786871,
+    "updated_at" : 1683786871
+}
+```
