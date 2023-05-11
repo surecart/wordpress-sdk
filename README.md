@@ -1,5 +1,8 @@
 # SureCart Theme and Plugin Licensing SDK
 
+## Enanble Licensing
+https://surecart.com/docs/licensing/
+
 ## Installation
 
 Clone the repository in your project.
