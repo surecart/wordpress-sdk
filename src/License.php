@@ -16,7 +16,7 @@ class License {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var SureCart\Licensing\Client
+	 * @var \SureCart\Licensing\Client
 	 */
 	protected $client;
 
@@ -30,7 +30,7 @@ class License {
 	/**
 	 * Initialize the class.
 	 *
-	 * @param SureCart\Licensing\Client $client The client.
+	 * @param \SureCart\Licensing\Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client = $client;

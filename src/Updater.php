@@ -1,4 +1,5 @@
 <?php
+
 namespace SureCart\Licensing;
 
 /**
@@ -8,14 +9,21 @@ class Updater {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\Client
 	 */
 	protected $client;
 
 	/**
+	 * Version info cache key.
+	 *
+	 * @var string
+	 */
+	protected $cache_key;
+
+	/**
 	 * Initialize the class
 	 *
-	 * @param SureCart\Licensing\Client $client The client.
+	 * @param \SureCart\Licensing\Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client    = $client;

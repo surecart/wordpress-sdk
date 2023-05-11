@@ -37,14 +37,22 @@ class Settings {
 	private $menu_args;
 
 	/**
+	 * Activation cache key.
+	 *
+	 * @var string
+	 */
+	private $activation_cache_key;
+
+	/**
 	 * Create the pages.
 	 *
 	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
-		$this->client     = $client;
-		$this->name       = strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
-		$this->option_key = $this->name . '_license_options';
+		$this->client				= $client;
+		$this->name					= strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
+		$this->option_key			= $this->name . '_license_options';
+		$this->activation_cache_key = 'surecart_' . md5( $this->client->slug ) . '_activation_data';
 	}
 
 	/**
@@ -174,7 +182,7 @@ class Settings {
 	 */
 	public function clear_options() {
 		// Clear the cache, it will be triggered on cache-deactivated and on cache-expired.
-		delete_transient( 'surecart_activation_data' );
+		delete_transient( $this->activation_cache_key );
 
 		return update_option( $this->option_key, array() );
 	}
@@ -303,7 +311,7 @@ class Settings {
 	 * @return Object|false
 	 */
 	public function get_activation( $refreshed = false ) {
-		$activation = get_transient( 'surecart_activation_data' );
+		$activation = get_transient( $this->activation_cache_key );
 
 		if ( ( ! $activation || $refreshed ) && $this->activation_id ) {
 			$activation = $this->client->activation()->get( $this->activation_id );
@@ -312,7 +320,7 @@ class Settings {
 				$this->clear_options();
 			}
 
-			set_transient( 'surecart_activation_data', $activation, 24 * HOUR_IN_SECONDS );
+			set_transient( $this->activation_cache_key, $activation, 24 * HOUR_IN_SECONDS );
 		}
 
 		return $activation;

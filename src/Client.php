@@ -72,28 +72,28 @@ class Client {
 	/**
 	 * The Object of Updater Class
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\Updater
 	 */
 	private $updater;
 
 	/**
 	 * The Object of License Class
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\License
 	 */
 	private $license;
 
 	/**
 	 * The Object of Activation Class
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\Activation
 	 */
 	private $activation;
 
 	/**
 	 * The Object of Settings Class
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\Settings
 	 */
 	private $settings;
 
@@ -116,7 +116,7 @@ class Client {
 	/**
 	 * Initialize plugin/theme updater
 	 *
-	 * @return SureCart\Updater
+	 * @return \SureCart\Licensing\Updater
 	 */
 	public function updater() {
 		if ( ! class_exists( __NAMESPACE__ . '\Updater' ) ) {
@@ -132,7 +132,7 @@ class Client {
 	/**
 	 * Initialize license model
 	 *
-	 * @return SureCart\Licensing
+	 * @return \SureCart\Licensing\License
 	 */
 	public function license() {
 		if ( ! class_exists( __NAMESPACE__ . '\License' ) ) {
@@ -148,7 +148,7 @@ class Client {
 	/**
 	 * Initialize activation model
 	 *
-	 * @return SureCart\Licensing
+	 * @return \SureCart\Licensing\Activation
 	 */
 	public function activation() {
 		if ( ! class_exists( __NAMESPACE__ . '\Activation' ) ) {
@@ -164,7 +164,7 @@ class Client {
 	/**
 	 * Initialize settings page
 	 *
-	 * @return SureCart\Licensing
+	 * @return \SureCart\Licensing\Settings
 	 */
 	public function settings() {
 		if ( ! class_exists( __NAMESPACE__ . '\Settings' ) ) {
