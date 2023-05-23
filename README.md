@@ -1,7 +1,8 @@
 # SureCart Theme and Plugin Licensing SDK
 
-## Enanble Licensing
-https://surecart.com/docs/licensing/
+## Pre-requisites
+1. Enable Licensing - https://surecart.com/docs/licensing/
+1. Minimum PHP Version - `7.0`
 
 ## Installation
 
@@ -15,9 +16,7 @@ git clone https://github.com/surecart/wordpress-sdk.git licensing
 Now include the dependencies in your plugin/theme.
 
 ```php
-if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
-    require_once __DIR__ . '/licensing/src/Client.php';
-}
+require_once __DIR__ . '/licensing/SureCartSdkLoader.php';
 ```
 
 ## Include a release.json
@@ -66,17 +65,18 @@ Please refer to the **installation** step before start using the class.
 
 ```php
 
-if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
-    require_once __DIR__ . '/licensing/src/Client.php';
-}
+require_once __DIR__ . '/licensing/SureCartSdkLoader.php';
 
 // initialize client with your plugin name.
-$client = new \SureCart\Licensing\Client( 'Your Plugin', __FILE__ );
+SureCartSdkLoader::instance()->initialize_client( 'Your plugin name', __FILE__ );
 
-// set your textdomain.
+// Get the client.
+$client = SureCartSdkLoader::instance()->get_client();
+
+// Set your textdomain.
 $client->set_textdomain( 'your-textdomain' );
 
-// add the pre-built license settings page.
+// Add the pre-built license settings page.
 $client->settings()->add_page( 
     [
 	'type'                 => 'submenu', // Can be: menu, options, submenu.
@@ -100,11 +100,13 @@ Make sure you call this function directly, never use any action hook to call thi
 > For themes example code that needs to be used on your themes `functions.php` file.
 
 
-
 ## More Usage
 
 ```php
-$client = new \SureCart\Licensing\Client(  'Twenty Twelve', __FILE__ );
+# For theme
+SureCartSdkLoader::instance()->initialize_client( 'Twenty Twelve', __FILE__ );
+
+$client = SureCartSdkLoader::instance()->get_client();
 ```
 
 ## Set textdomain
