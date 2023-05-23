@@ -2,8 +2,6 @@
 
 namespace SureCart\Licensing;
 
-use SureCart\Licensing\Client;
-
 /**
  * The settings class.
  */
@@ -49,9 +47,9 @@ class Settings {
 	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
-		$this->client				= $client;
-		$this->name					= strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
-		$this->option_key			= $this->name . '_license_options';
+		$this->client               = $client;
+		$this->name                 = strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
+		$this->option_key           = $this->name . '_license_options';
 		$this->activation_cache_key = 'surecart_' . md5( $this->client->slug ) . '_activation_data';
 	}
 
@@ -62,7 +60,7 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function add_page( $args ) {
+	public function add_page( array $args ) {
 		// store menu args for proper menu creation.
 		$this->menu_args = wp_parse_args(
 			$args,
@@ -95,7 +93,7 @@ class Settings {
 	 *
 	 * @param string $key The option key.
 	 */
-	public function set_option_key( $key ) {
+	public function set_option_key( string $key ) {
 		$this->option_key = $key;
 		return $this;
 	}
@@ -310,13 +308,13 @@ class Settings {
 	 *
 	 * @return Object|false
 	 */
-	public function get_activation( $refreshed = false ) {
+	public function get_activation( bool $refreshed = false ) {
 		$activation = get_transient( $this->activation_cache_key );
 
 		if ( ( ! $activation || $refreshed ) && $this->activation_id ) {
 			$activation = $this->client->activation()->get( $this->activation_id );
 			if ( is_wp_error( $activation ) ) {
-				$this->add_error( 'deactivaed', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
+				$this->add_error( 'deactivated', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
 				$this->clear_options();
 			}
 

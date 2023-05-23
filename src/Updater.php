@@ -9,7 +9,7 @@ class Updater {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var \SureCart\Licensing\Client
+	 * @var Client
 	 */
 	protected $client;
 
@@ -23,7 +23,7 @@ class Updater {
 	/**
 	 * Initialize the class
 	 *
-	 * @param \SureCart\Licensing\Client $client The client.
+	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client    = $client;

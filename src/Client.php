@@ -1,5 +1,8 @@
 <?php
+
 namespace SureCart\Licensing;
+
+use WP_Error;
 
 /**
  * SureCart Client
@@ -12,7 +15,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	public $version = '1.0.1';
+	public $version = '1.1.0';
 
 	/**
 	 * Name of the plugin
@@ -72,28 +75,28 @@ class Client {
 	/**
 	 * The Object of Updater Class
 	 *
-	 * @var \SureCart\Licensing\Updater
+	 * @var Updater
 	 */
 	private $updater;
 
 	/**
 	 * The Object of License Class
 	 *
-	 * @var \SureCart\Licensing\License
+	 * @var License
 	 */
 	private $license;
 
 	/**
 	 * The Object of Activation Class
 	 *
-	 * @var \SureCart\Licensing\Activation
+	 * @var Activation
 	 */
 	private $activation;
 
 	/**
 	 * The Object of Settings Class
 	 *
-	 * @var \SureCart\Licensing\Settings
+	 * @var Settings
 	 */
 	private $settings;
 
@@ -103,7 +106,7 @@ class Client {
 	 * @param string $name Readable name of the plugin.
 	 * @param string $file Main plugin file path.
 	 */
-	public function __construct( $name, $file ) {
+	public function __construct( string $name, string $file ) {
 		$this->name = $name;
 		$this->file = $file;
 		$this->set_basename_and_slug();
@@ -116,7 +119,7 @@ class Client {
 	/**
 	 * Initialize plugin/theme updater
 	 *
-	 * @return \SureCart\Licensing\Updater
+	 * @return Updater
 	 */
 	public function updater() {
 		if ( ! class_exists( __NAMESPACE__ . '\Updater' ) ) {
@@ -132,7 +135,7 @@ class Client {
 	/**
 	 * Initialize license model
 	 *
-	 * @return \SureCart\Licensing\License
+	 * @return License
 	 */
 	public function license() {
 		if ( ! class_exists( __NAMESPACE__ . '\License' ) ) {
@@ -148,7 +151,7 @@ class Client {
 	/**
 	 * Initialize activation model
 	 *
-	 * @return \SureCart\Licensing\Activation
+	 * @return Activation
 	 */
 	public function activation() {
 		if ( ! class_exists( __NAMESPACE__ . '\Activation' ) ) {
@@ -164,9 +167,9 @@ class Client {
 	/**
 	 * Initialize settings page
 	 *
-	 * @return \SureCart\Licensing\Settings
+	 * @return Settings
 	 */
-	public function settings() {
+	public function settings(): Settings {
 		if ( ! class_exists( __NAMESPACE__ . '\Settings' ) ) {
 			require_once __DIR__ . '/Settings.php';
 		}
@@ -182,7 +185,7 @@ class Client {
 	 *
 	 * @return string
 	 */
-	public function endpoint() {
+	public function endpoint(): string {
 		// allow a constant to be set.
 		if ( defined( 'SURECART_LICENSING_ENDPOINT' ) ) {
 			return trailingslashit( SURECART_LICENSING_ENDPOINT );
@@ -279,13 +282,13 @@ class Client {
 
 		if ( ! in_array( $response_code, array( 200, 201 ), true ) ) {
 			if ( 404 === $response_code ) {
-				return new \WP_Error( 'not_found', $this->__( 'Not found' ) );
+				return new WP_Error( 'not_found', $this->__( 'Not found' ) );
 			}
 
 			if ( ! empty( $response_body->code ) && ! empty( $response_body->message ) ) {
-				return new \WP_Error( $response_body->code, esc_html( $response_body->message ) );
+				return new WP_Error( $response_body->code, esc_html( $response_body->message ) );
 			}
-			return new \WP_Error( 'error', $this->__( 'Unknown error occurred, Please try again.' ) );
+			return new WP_Error( 'error', $this->__( 'Unknown error occurred, Please try again.' ) );
 		}
 
 		return $response_body;
@@ -296,7 +299,7 @@ class Client {
 	 *
 	 * @return boolean
 	 */
-	public function is_local_server() {
+	public function is_local_server(): bool {
 		$is_local = in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true );
 		return apply_filters( 'surecart_licensing_is_local', $is_local );
 	}
@@ -306,7 +309,7 @@ class Client {
 	 *
 	 * @param string $text The text string.
 	 */
-	public function __( $text ) {
+	public function __( string $text ) {
 		return call_user_func( '__', $text, $this->textdomain );
 	}
 
@@ -315,7 +318,7 @@ class Client {
 	 *
 	 * @param string $textdomain The textdomain for translations.
 	 */
-	public function set_textdomain( $textdomain ) {
+	public function set_textdomain( string $textdomain ) {
 		$this->textdomain = $textdomain;
 	}
 }
