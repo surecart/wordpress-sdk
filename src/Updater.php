@@ -1,4 +1,5 @@
 <?php
+
 namespace SureCart\Licensing;
 
 /**
@@ -8,14 +9,21 @@ class Updater {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var Client
 	 */
 	protected $client;
 
 	/**
+	 * Version info cache key.
+	 *
+	 * @var string
+	 */
+	protected $cache_key;
+
+	/**
 	 * Initialize the class
 	 *
-	 * @param SureCart\Licensing\Client $client The client.
+	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client    = $client;
@@ -92,7 +100,7 @@ class Updater {
 	/**
 	 * Get version info from database
 	 *
-	 * @return Object or Boolean
+	 * @return mixed|bool
 	 */
 	private function get_cached_version_info() {
 		global $pagenow;

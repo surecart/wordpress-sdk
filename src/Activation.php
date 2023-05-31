@@ -2,6 +2,8 @@
 
 namespace SureCart\Licensing;
 
+use WP_Error;
+
 /**
  * Activation model
  */
@@ -16,7 +18,7 @@ class Activation {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var Client
 	 */
 	protected $client;
 
@@ -30,7 +32,7 @@ class Activation {
 	/**
 	 * Initialize the class.
 	 *
-	 * @param SureCart\Licensing\Client $client The client.
+	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client     = $client;
@@ -42,11 +44,11 @@ class Activation {
 	 *
 	 * @param string $license_id The license id.
 	 *
-	 * @return object|\WP_Error
+	 * @return object|WP_Error
 	 */
-	public function create( $license_id ) {
+	public function create( string $license_id ) {
 		if ( empty( $license_id ) ) {
-			return new \WP_Error( 'missing_key', $this->client->__( 'Please enter a license key' ) );
+			return new WP_Error( 'missing_key', $this->client->__( 'Please enter a license key' ) );
 		}
 
 		// send the activation request.
@@ -69,7 +71,7 @@ class Activation {
 
 		// no id.
 		if ( empty( $activation->id ) ) {
-			return new \WP_Error( 'could_not_activate', $this->client->__( 'Could not activate the license.', 'surecart' ) );
+			return new WP_Error( 'could_not_activate', $this->client->__( 'Could not activate the license.', 'surecart' ) );
 		}
 
 		// return the activation.
@@ -81,9 +83,9 @@ class Activation {
 	 *
 	 * @param string $id The id of the activation.
 	 *
-	 * @return object|\WP_Error
+	 * @return object|WP_Error
 	 */
-	public function get( $id = '' ) {
+	public function get( string $id = '' ) {
 		return $this->client->send_request(
 			'GET',
 			trailingslashit( $this->endpoint ) . $id
@@ -95,12 +97,12 @@ class Activation {
 	 *
 	 * @param string $id The id of the activation.
 	 *
-	 * @return object|\WP_Error
+	 * @return object|WP_Error
 	 */
-	public function update( $id = '' ) {
+	public function update( string $id = '' ) {
 		$license_key = $this->client->license()->get_id();
 		if ( empty( $license_key ) ) {
-			return new \WP_Error( 'missing_key', $this->client->__( 'Please enter a license key' ) );
+			return new WP_Error( 'missing_key', $this->client->__( 'Please enter a license key' ) );
 		}
 
 		return $this->client->send_request(
@@ -119,9 +121,9 @@ class Activation {
 	 *
 	 * @param string $id The id of the activation.
 	 *
-	 * @return object|\WP_Error
+	 * @return object|WP_Error
 	 */
-	public function delete( $id = '' ) {
+	public function delete( string $id = '' ) {
 		return $this->client->send_request(
 			'DELETE',
 			trailingslashit( $this->endpoint ) . $id

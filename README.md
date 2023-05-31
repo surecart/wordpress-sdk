@@ -1,5 +1,9 @@
 # SureCart Theme and Plugin Licensing SDK
 
+## Pre-requisites
+1. Enable Licensing - https://surecart.com/docs/licensing/
+1. Minimum PHP Version - `7.0`
+
 ## Installation
 
 Clone the repository in your project.
@@ -12,10 +16,14 @@ git clone https://github.com/surecart/wordpress-sdk.git licensing
 Now include the dependencies in your plugin/theme.
 
 ```php
-if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
-    require_once __DIR__ . '/licensing/src/Client.php';
-}
+require_once __DIR__ . '/licensing/SureCartSdkLoader.php';
 ```
+
+## When to load (Usage order)
+The `SureCartSdkLoader.php` file must be included before your plugin's other files are loaded. That means - the file must be included before `plugins_loaded` priority `0`.
+
+>**What we'll do under the hood:** *Surecart SDK* will register its version on `plugins_loaded` with priority `0` - after all other plugin codebases has been loaded.
+So, It is recommended to load it when the file including it is included. However, if you need to load it on a hook, then the hook must occur before `plugins_loaded`, or you can use `plugins_loaded` with negative priority, like `-10`.
 
 ## Include a release.json
 
@@ -63,17 +71,18 @@ Please refer to the **installation** step before start using the class.
 
 ```php
 
-if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
-    require_once __DIR__ . '/licensing/src/Client.php';
-}
+require_once __DIR__ . '/licensing/SureCartSdkLoader.php';
 
 // initialize client with your plugin name.
-$client = new \SureCart\Licensing\Client( 'Your Plugin', __FILE__ );
+SureCartSdkLoader::instance()->initialize_client( 'Your plugin name', __FILE__ );
 
-// set your textdomain.
+// Get the client.
+$client = SureCartSdkLoader::instance()->get_client();
+
+// Set your textdomain.
 $client->set_textdomain( 'your-textdomain' );
 
-// add the pre-built license settings page.
+// Add the pre-built license settings page.
 $client->settings()->add_page( 
     [
 	'type'                 => 'submenu', // Can be: menu, options, submenu.
@@ -97,11 +106,13 @@ Make sure you call this function directly, never use any action hook to call thi
 > For themes example code that needs to be used on your themes `functions.php` file.
 
 
-
 ## More Usage
 
 ```php
-$client = new \SureCart\Licensing\Client(  'Twenty Twelve', __FILE__ );
+# For theme
+SureCartSdkLoader::instance()->initialize_client( 'Twenty Twelve', __FILE__ );
+
+$client = SureCartSdkLoader::instance()->get_client();
 ```
 
 ## Set textdomain
@@ -110,4 +121,24 @@ You may set your own textdomain to translate text.
 
 ```php
 $client->set_textdomain( 'your-project-textdomain' );
+```
+
+## Get the license activation information
+```php
+$client->settings()->get_activation();
+```
+
+#### Activation Response Demo
+
+```json
+{
+    "id" : "xxxxxxxxxxxxx",
+    "object" : "activation",
+    "counted" : true,
+    "name" : "SiteName",
+    "fingerprint" : "http://site.com",
+    "license" : "xxxxxxxxxx",
+    "created_at" : 1683786871,
+    "updated_at" : 1683786871
+}
 ```

@@ -16,7 +16,7 @@ class License {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var Client
 	 */
 	protected $client;
 
@@ -30,7 +30,7 @@ class License {
 	/**
 	 * Initialize the class.
 	 *
-	 * @param SureCart\Licensing\Client $client The client.
+	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
 		$this->client = $client;
@@ -41,7 +41,7 @@ class License {
 	 *
 	 * @param string $license_key The license key.
 	 *
-	 * @return Object|\WP_Error
+	 * @return object|\WP_Error
 	 */
 	public function retrieve( $license_key ) {
 		$route = trailingslashit( $this->endpoint ) . $license_key;
@@ -53,7 +53,7 @@ class License {
 	 *
 	 * @param string $key A license key.
 	 *
-	 * @return \WP_Error|Object
+	 * @return \WP_Error|object|bool
 	 * @throws \Exception If something goes wrong.
 	 */
 	public function activate( $key = '' ) {
@@ -115,7 +115,7 @@ class License {
 	 *
 	 * @param integer $expires_in The amount of time until it expires.
 	 *
-	 * @return Object|WP_Error
+	 * @return object|\WP_Error
 	 */
 	public function get_current_release( $expires_in = 900 ) {
 		$key = $this->client->settings()->license_key;
@@ -144,7 +144,7 @@ class License {
 	 *
 	 * @param string  $key The license key.
 	 * @param boolean $store Should we store the key and id.
-	 * @return Object
+	 * @return object
 	 * @throws \Exception If the license is not valid.
 	 */
 	public function validate( $key, $store = false ) {
@@ -174,7 +174,7 @@ class License {
 	/**
 	 * Validate the current release.
 	 *
-	 * @return Object
+	 * @return object
 	 * @throws \Exception If the release is not valid.
 	 */
 	public function validate_release() {
@@ -182,7 +182,8 @@ class License {
 		if ( is_wp_error( $current_release ) ) {
 			throw new \Exception( $current_release->get_error_message() );
 		}
-			// if there is no slug or it does not match.
+
+		// if there is no slug or it does not match.
 		if ( empty( $current_release->release_json->slug ) || $this->client->slug !== $current_release->release_json->slug ) {
 			throw new \Exception( $this->client->__( 'This license is not valid for this product.' ) );
 		}
@@ -239,7 +240,7 @@ class License {
 	/**
 	 * Validate the license response
 	 *
-	 * @param Object|\WP_Error $license The license response.
+	 * @param object|\WP_Error $license The license response.
 	 *
 	 * @return \WP_Error|boolean
 	 */

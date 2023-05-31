@@ -7,9 +7,9 @@ namespace SureCart\Licensing;
  */
 class Settings {
 	/**
-	 * SureCart\Licensing\Client
+	 * Client
 	 *
-	 * @var object
+	 * @var Client
 	 */
 	protected $client;
 
@@ -35,14 +35,22 @@ class Settings {
 	private $menu_args;
 
 	/**
+	 * Activation cache key.
+	 *
+	 * @var string
+	 */
+	private $activation_cache_key;
+
+	/**
 	 * Create the pages.
 	 *
-	 * @param SureCart\Licensing\Client $client The client.
+	 * @param Client $client The client.
 	 */
 	public function __construct( Client $client ) {
-		$this->client     = $client;
-		$this->name       = strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
-		$this->option_key = $this->name . '_license_options';
+		$this->client               = $client;
+		$this->name                 = strtolower( preg_replace( '/\s+/', '', $this->client->name ) );
+		$this->option_key           = $this->name . '_license_options';
+		$this->activation_cache_key = 'surecart_' . md5( $this->client->slug ) . '_activation_data';
 	}
 
 	/**
@@ -52,7 +60,7 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function add_page( $args ) {
+	public function add_page( array $args ) {
 		// store menu args for proper menu creation.
 		$this->menu_args = wp_parse_args(
 			$args,
@@ -85,7 +93,7 @@ class Settings {
 	 *
 	 * @param string $key The option key.
 	 */
-	public function set_option_key( $key ) {
+	public function set_option_key( string $key ) {
 		$this->option_key = $key;
 		return $this;
 	}
@@ -171,6 +179,9 @@ class Settings {
 	 * @return bool
 	 */
 	public function clear_options() {
+		// Clear the cache, it will be triggered on cache-deactivated and on cache-expired.
+		delete_transient( $this->activation_cache_key );
+
 		return update_option( $this->option_key, array() );
 	}
 
@@ -210,7 +221,7 @@ class Settings {
 
 		$this->print_css();
 
-		$activation = $this->get_activation();
+		$activation = $this->get_activation( true );
 		$action     = ! empty( $activation->id ) ? 'deactivate' : 'activate'
 		?>
 
@@ -226,14 +237,14 @@ class Settings {
 
 					<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
 					<label for="license_key">
-						<?php if ( 'activate' === $action ) : ?> 
+						<?php if ( 'activate' === $action ) : ?>
 							<?php echo esc_html( sprintf( $this->client->__( 'Enter your license key to activate %s.', 'surecart' ), $this->client->name ) ); ?>
 						<?php else : ?>
 							<?php echo esc_html( sprintf( $this->client->__( 'Your license is succesfully activated for this site.', 'surecart' ), $this->client->name ) ); ?>
 						<?php endif; ?>
 					</label>
 
-					<?php if ( 'activate' === $action ) : ?> 
+					<?php if ( 'activate' === $action ) : ?>
 						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
 					<?php endif; ?>
 
@@ -293,17 +304,23 @@ class Settings {
 	/**
 	 * Get the activation.
 	 *
+	 * @param bool $refreshed Always get the refreshed activation.
+	 *
 	 * @return Object|false
 	 */
-	public function get_activation() {
-		$activation = false;
-		if ( $this->activation_id ) {
+	public function get_activation( bool $refreshed = false ) {
+		$activation = get_transient( $this->activation_cache_key );
+
+		if ( ( ! $activation || $refreshed ) && $this->activation_id ) {
 			$activation = $this->client->activation()->get( $this->activation_id );
 			if ( is_wp_error( $activation ) ) {
-				$this->add_error( 'deactivaed', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
+				$this->add_error( 'deactivated', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
 				$this->clear_options();
 			}
+
+			set_transient( $this->activation_cache_key, $activation, 24 * HOUR_IN_SECONDS );
 		}
+
 		return $activation;
 	}
 
