@@ -19,6 +19,12 @@ Now include the dependencies in your plugin/theme.
 require_once __DIR__ . '/licensing/SureCartSdkLoader.php';
 ```
 
+## When to load (Usage order)
+The `SureCartSdkLoader.php` file must be included before your plugin's other files are loaded. That means - the file must be included before `plugins_loaded` priority `0`.
+
+>**What we'll do under the hood:** *Surecart SDK* will register its version on `plugins_loaded` with priority `0` - after all other plugin codebases has been loaded.
+So, It is recommended to load it when the file including it is included. However, if you need to load it on a hook, then the hook must occur before `plugins_loaded`, or you can use `plugins_loaded` with negative priority, like `-10`.
+
 ## Include a release.json
 
 Add a `release.json` file to the root of your plugin or theme project. 

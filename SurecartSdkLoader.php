@@ -5,7 +5,7 @@ use SureCart\Licensing\Versions;
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! class_exists( 'SureCartSdkLoader' ) ) {
+if ( ! class_exists( 'SureCartSdkLoader', false ) ) {
 	final class SureCartSdkLoader {
 		/**
 		 * SDK latest version.
@@ -36,7 +36,13 @@ if ( ! class_exists( 'SureCartSdkLoader' ) ) {
 		public $client_path;
 
 		private function __construct() {
-			require_once __DIR__ . '/vendor/autoload.php';
+			if ( ! class_exists( 'SureCart\Licensing\Versions' ) ) {
+				require_once __DIR__ . '/src/Versions.php';
+			}
+
+			if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
+				require_once __DIR__ . '/src/Client.php';
+			}
 
 			add_action( 'plugins_loaded', array( $this, 'initialize_latest_version' ), 1, 0 );
 		}

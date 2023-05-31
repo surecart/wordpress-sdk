@@ -100,7 +100,7 @@ class Updater {
 	/**
 	 * Get version info from database
 	 *
-	 * @return Object or Boolean
+	 * @return mixed|bool
 	 */
 	private function get_cached_version_info() {
 		global $pagenow;
