@@ -67,8 +67,8 @@ if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
     require_once __DIR__ . '/licensing/src/Client.php';
 }
 
-// initialize client with your plugin name.
-$client = new \SureCart\Licensing\Client( 'Your Plugin', __FILE__ );
+// initialize client with your plugin name and your public token.
+$client = new \SureCart\Licensing\Client( 'Your Plugin', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
 
 // set your textdomain.
 $client->set_textdomain( 'your-textdomain' );
@@ -101,7 +101,7 @@ Make sure you call this function directly, never use any action hook to call thi
 ## More Usage
 
 ```php
-$client = new \SureCart\Licensing\Client(  'Twenty Twelve', __FILE__ );
+$client = new \SureCart\Licensing\Client( 'Twenty Twelve', __FILE__ );
 ```
 
 ## Set textdomain
