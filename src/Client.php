@@ -31,6 +31,15 @@ class Client {
 	public $file;
 
 	/**
+	 * The public token for the store.
+	 *
+	 * @example pt_jzieNYQdE5LMAxksscgU6H4
+	 *
+	 * @var string
+	 */
+	public $public_token;
+
+	/**
 	 * Main plugin file
 	 *
 	 * @example test-slug/test-slug.php
@@ -101,11 +110,13 @@ class Client {
 	 * Initialize the class
 	 *
 	 * @param string $name Readable name of the plugin.
+	 * @param string $public_token The public token for the store.
 	 * @param string $file Main plugin file path.
 	 */
-	public function __construct( $name, $file ) {
-		$this->name = $name;
-		$this->file = $file;
+	public function __construct( $name, $public_token, $file ) {
+		$this->name         = $name;
+		$this->file         = $file;
+		$this->public_token = $public_token;
 		$this->set_basename_and_slug();
 
 		$this->license();
@@ -262,6 +273,7 @@ class Client {
 				'headers'  => array(
 					'X-SURECART-WP-LICENSING-SDK-VERSION' => $this->version,
 					'Accept'                              => 'application/json',
+					'Authorization'                       => "Bearer $this->public_token",
 				),
 				'method'   => $method,
 				'timeout'  => 30,
