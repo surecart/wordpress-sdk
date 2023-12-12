@@ -117,7 +117,7 @@ class Client {
 		$this->name         = $name;
 
 		// handle backwards compatibility.
-		if ( str_contains( $public_token, 'pt_' ) ) {
+		if ( ! empty( $file ) ) {
 			$this->file         = $file;
 			$this->public_token = $public_token;
 		} else {
