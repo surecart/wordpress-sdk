@@ -113,10 +113,17 @@ class Client {
 	 * @param string $public_token The public token for the store.
 	 * @param string $file Main plugin file path.
 	 */
-	public function __construct( $name, $public_token, $file ) {
-		$this->name         = $name;
-		$this->file         = $file;
-		$this->public_token = $public_token;
+	public function __construct( $name, $public_token, $file = '' ) {
+		$this->name = $name;
+
+		// handle backwards compatibility.
+		if ( ! empty( $file ) ) {
+			$this->file         = $file;
+			$this->public_token = $public_token;
+		} else {
+			$this->file = $public_token;
+		}
+
 		$this->set_basename_and_slug();
 
 		$this->license();
@@ -267,14 +274,19 @@ class Client {
 	 * @return array|WP_Error   Array of results including HTTP headers or WP_Error if the request failed.
 	 */
 	public function send_request( $method = 'POST', $route = '', $body = null, $blocking = true ) {
+		$headers = array(
+			'X-SURECART-WP-LICENSING-SDK-VERSION' => $this->version,
+			'Accept'                              => 'application/json',
+		);
+
+		if ( ! empty( $this->public_token ) ) {
+			$headers['Authorization'] = "Bearer $this->public_token";
+		}
+
 		$response = wp_remote_request(
 			$this->endpoint() . $route,
 			array(
-				'headers'  => array(
-					'X-SURECART-WP-LICENSING-SDK-VERSION' => $this->version,
-					'Accept'                              => 'application/json',
-					'Authorization'                       => "Bearer $this->public_token",
-				),
+				'headers'  => $headers,
 				'method'   => $method,
 				'timeout'  => 30,
 				'blocking' => $blocking,
