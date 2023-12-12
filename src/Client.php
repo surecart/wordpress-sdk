@@ -114,14 +114,14 @@ class Client {
 	 * @param string $file Main plugin file path.
 	 */
 	public function __construct( $name, $public_token, $file = '' ) {
-		$this->name         = $name;
+		$this->name = $name;
 
 		// handle backwards compatibility.
 		if ( ! empty( $file ) ) {
 			$this->file         = $file;
 			$this->public_token = $public_token;
 		} else {
-			$this->file         = $public_token;
+			$this->file = $public_token;
 		}
 
 		$this->set_basename_and_slug();
