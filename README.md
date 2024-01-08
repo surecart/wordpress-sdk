@@ -101,7 +101,7 @@ Make sure you call this function directly, never use any action hook to call thi
 ## More Usage
 
 ```php
-$client = new \SureCart\Licensing\Client( 'Twenty Twelve', __FILE__ );
+$client = new \SureCart\Licensing\Client( 'Twenty Twelve', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
 ```
 
 ## Set textdomain
