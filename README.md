@@ -56,7 +56,7 @@ Sections will require a `changelog` property with an html string of your changel
 }
 ```
 
-### Important
+### ⚠️ Important
 In order for updates to work, the `slug` in release.json must match the **folder name** of your plugin or theme. 
 So if for example your plugin folder name is `ralphs-biscuits`, the `slug` in `release.json` must also be `ralphs-biscuits`.
 
