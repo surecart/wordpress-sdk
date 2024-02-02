@@ -1,6 +1,8 @@
 <?php
 namespace SureCart\Licensing;
 
+use Exception;
+
 /**
  * This class will handle the updates.
  */
@@ -154,7 +156,7 @@ class Updater {
 		}
 
 		// If there is asset path, then try to find the images from the asset path.
-		if ( ! empty ( $this->client->asset_path ) ) {
+		if ( ! empty( $this->client->asset_path ) ) {
 			if ( ! isset( $release->banners ) || ( isset( $release->banners ) && ! count( $release->banners ) ) ) {
 				$release->banners = $this->findImagesFromAssetPath( 'banner' );
 			}
@@ -255,7 +257,7 @@ class Updater {
 	 * @return array         The processed banners.
 	 */
 	public function getReleaseBanners( $banners ) {
-		$release_banners = [];
+		$release_banners = array();
 
 		foreach ( $banners as $banner ) {
 			if ( strpos( $banner, '772x250' ) !== false ) {
@@ -297,26 +299,26 @@ class Updater {
 	 * @return array         The images.
 	 */
 	public function findImagesFromAssetPath( $prefix ) {
-		$sizes  = [];
-		$images = [];
-		$allowed_extensions = [
+		$sizes              = array();
+		$images             = array();
+		$allowed_extensions = array(
 			'jpg',
 			'png',
-		];
+		);
 
 		// Set the sizes and allowed extensions for the banner and icon.
 		if ( 'icon' === $prefix ) {
-			$sizes = [
+			$sizes = array(
 				'1x'  => '128x128',
 				'2x'  => '256x256',
 				'svg' => 'icon',
-			];
+			);
 			$allowed_extensions[] = 'svg';
 		} elseif ( 'banner' === $prefix ) {
-			$sizes = [
+			$sizes = array(
 				'low'  => '772x250',
 				'high' => '1544x500',
-			];
+			);
 		}
 
 		// Loop through the sizes and extensions to find the images.
@@ -341,7 +343,11 @@ class Updater {
 	 * @return boolean    True if the URL exists, false if not.
 	 */
 	private function urlExists( $url ) {
-		$headers = @get_headers( $url );
-		return $headers && strpos( $headers[0], '200' );
+		try {
+			$headers = @get_headers( $url );
+			return $headers && strpos( $headers[0], '200' );
+		} catch ( Exception $e ) {
+			return false;
+		}
 	}
 }
