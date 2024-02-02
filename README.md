@@ -46,15 +46,28 @@ Sections will require a `changelog` property with an html string of your changel
   "author_profile": "https://surecart.com",
   "version": "0.9.0",
   "requires": "5.6",
-  "tested": "6.1.0",
+  "tested": "6.4.3",
   "requires_php": "5.3",
   "sections": {
     "description": "This is my plugin description.",
     "changelog": "<h4>1.0 –  July 20, 2022</h4><ul><li>Bug fixes.</li><li>Initital release.</li></ul>",
     "frequently asked questions": "<h4>Question<h4><p>Answer</p>"
-  }
+  },
+  "icons": [
+    "https://example.com/assets/icon-128x128.png",
+    "https://example.com/assets/icon-256x256.png",
+    "https://example.com/assets/icon.svg",
+  ],
+  "banners": [
+    "https://example.com/assets/banner-772x250.png",
+    "https://example.com/assets/banner-1544x500.png",
+  ]
 }
 ```
+!!! note Handling Release Images from urls or asset path
+  - **URL:** If you want to set the reease icons and banners from url, then fill the above URL's. And, those will get higher priority than asset path images.
+
+  - **Asset path:** And if you want to get icons and banners from plugin asset directory, after instantiate the client, set asset path using `$client->set_asset_path( $path )`, And hence, no need to pass banners, icons from `release.json` file.
 
 
 ## Usage Example
@@ -102,6 +115,13 @@ Make sure you call this function directly, never use any action hook to call thi
 
 ```php
 $client = new \SureCart\Licensing\Client( 'Twenty Twelve', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
+```
+## Set asset path.
+
+You should set your plugin files asset path for icons and banners.
+
+```php
+$client->set_asset_path( 'your-project-asset-path' )
 ```
 
 ## Set textdomain
