@@ -277,7 +277,7 @@ class Updater {
 	 * @return array       The processed icons.
 	 */
 	public function getReleaseIcons( $icons ) {
-		$release_icons = [];
+		$release_icons = array();
 
 		foreach ( $icons as $icon ) {
 			if ( strpos( $icon, '.svg' ) !== false ) {
@@ -308,7 +308,7 @@ class Updater {
 
 		// Set the sizes and allowed extensions for the banner and icon.
 		if ( 'icon' === $prefix ) {
-			$sizes = array(
+			$sizes                = array(
 				'1x'  => '128x128',
 				'2x'  => '256x256',
 				'svg' => 'icon',
@@ -344,7 +344,7 @@ class Updater {
 	 */
 	private function urlExists( $url ) {
 		try {
-			$headers = @get_headers( $url );
+			$headers = get_headers( $url );
 			return $headers && strpos( $headers[0], '200' );
 		} catch ( Exception $e ) {
 			return false;
