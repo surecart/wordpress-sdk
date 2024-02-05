@@ -115,3 +115,40 @@ You may set your own textdomain to translate text.
 ```php
 $client->set_textdomain( 'your-project-textdomain' );
 ```
+
+## Get activation object data
+```php
+$client->settings()->get_activation();
+```
+
+**Demo activation response**
+```json
+{
+  "id": "activation-id",
+  "object": "activation",
+  "counted": null,
+  "name": "WebsiteDomain",
+  "fingerprint": "https://example.com",
+  "license": {
+    "id": "license-id",
+    "object": "license",
+    "activations_count": 0,
+    "activation_limit": null,
+    "key": "license-key",
+    "status": "active",
+    "product": {
+      "id": "product-id",
+      "object": "product",
+      "description": "<p>Product Description</p>",
+      "name": "Product Name",
+      "created_at": 1683782487,
+      "updated_at": 1706799044
+    },
+    "current_release": "release-id",
+    "created_at": 1706767739,
+    "updated_at": 1706767739
+  },
+  "created_at": 1706798871,
+  "updated_at": 1706798871
+}
+```
