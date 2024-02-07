@@ -11,7 +11,14 @@ class Updater {
 	 * @var object
 	 */
 	protected $client;
-
+	
+	/**
+	* Holds the cache key for the version info
+	*
+	* @var string
+	*/
+	private $cache_key; // Declared as private
+	
 	/**
 	 * Initialize the class
 	 *
