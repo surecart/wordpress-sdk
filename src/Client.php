@@ -166,7 +166,7 @@ class Client {
 	/**
 	 * Initialize activation model
 	 *
-	 * @return SureCart\Licensing
+	 * @return \SureCart\Licensing\Activation
 	 */
 	public function activation() {
 		if ( ! class_exists( __NAMESPACE__ . '\Activation' ) ) {
@@ -182,7 +182,7 @@ class Client {
 	/**
 	 * Initialize settings page
 	 *
-	 * @return SureCart\Licensing
+	 * @return \SureCart\Licensing\Settings
 	 */
 	public function settings() {
 		if ( ! class_exists( __NAMESPACE__ . '\Settings' ) ) {

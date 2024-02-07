@@ -16,7 +16,7 @@ class License {
 	/**
 	 * SureCart\Licensing\Client
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\Client
 	 */
 	protected $client;
 
@@ -66,6 +66,7 @@ class License {
 				throw new \Exception( $activation->get_error_message() );
 			}
 			$this->client->settings()->activation_id = $activation->id;
+			$this->client->settings()->activation    = $activation;
 			// validate the release.
 			$this->validate_release();
 		} catch ( \Exception $e ) {
