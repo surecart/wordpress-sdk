@@ -20,6 +20,13 @@ class Updater {
 	private $cache_key; // Declared as private
 	
 	/**
+	 * SureCart\Licensing\Client
+	 *
+	 * @var string
+	 */
+	protected $cache_key;
+
+	/**
 	 * Initialize the class
 	 *
 	 * @param SureCart\Licensing\Client $client The client.
