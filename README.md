@@ -8,7 +8,7 @@ Clone the repository in your project.
 cd /path/to/your/project/folder
 git clone https://github.com/surecart/wordpress-sdk.git licensing
 ```
-Or, you can download the prepository zip file](https://github.com/surecart/wordpress-sdk/releases/latest), and place it in the licensing folder of your plugin or theme.
+Or, you can download the [repository zip file](https://github.com/surecart/wordpress-sdk/releases/latest), and place it in the licensing folder of your plugin or theme.
 
 Now include the dependencies in your plugin/theme.
 
