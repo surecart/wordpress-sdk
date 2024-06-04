@@ -11,14 +11,14 @@ class Updater {
 	 * @var object
 	 */
 	protected $client;
-	
+
 	/**
-	* Holds the cache key for the version info
-	*
-	* @var string
-	*/
+	 * Holds the cache key for the version info
+	 *
+	 * @var string
+	 */
 	private $cache_key; // Declared as private
-	
+
 	/**
 	 * Initialize the class
 	 *
@@ -80,8 +80,8 @@ class Updater {
 		if ( false !== $version_info && is_object( $version_info ) && isset( $version_info->new_version ) ) {
 
 			unset( $version_info->sections );
-			
-			// Ensure the 'plugin' property is set
+
+			// Ensure the 'plugin' property is set.
 			if ( ! isset( $version_info->plugin ) ) {
 				$version_info->plugin = $this->client->basename;
 			}
@@ -216,7 +216,7 @@ class Updater {
 
 		if ( false !== $version_info && is_object( $version_info ) && isset( $version_info->new_version ) ) {
 
-			// Ensure the 'theme' property is set
+			// Ensure the 'theme' property is set.
 			if ( ! isset( $version_info->theme ) ) {
 				$version_info->theme = $this->client->slug;
 			}
