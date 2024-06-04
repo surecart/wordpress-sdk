@@ -6,21 +6,21 @@ namespace SureCart\Licensing;
  */
 class Updater {
 	/**
-	 * SureCart\Licensing\Client
+	 * SureCart\Licensing\Client.
 	 *
 	 * @var object
 	 */
 	protected $client;
-	
+
 	/**
-	* Holds the cache key for the version info
-	*
-	* @var string
-	*/
-	private $cache_key; // Declared as private
-	
+	 * Holds the cache key for the version info.
+	 *
+	 * @var string
+	 */
+	private $cache_key; // Declared as private.
+
 	/**
-	 * Initialize the class
+	 * Initialize the class.
 	 *
 	 * @param SureCart\Licensing\Client $client The client.
 	 */
@@ -80,6 +80,11 @@ class Updater {
 		if ( false !== $version_info && is_object( $version_info ) && isset( $version_info->new_version ) ) {
 
 			unset( $version_info->sections );
+
+			// Ensure the 'plugin' property is set.
+			if ( ! isset( $version_info->plugin ) ) {
+				$version_info->plugin = $this->client->basename;
+			}
 
 			// If new version available then set to `response`.
 			if ( version_compare( $this->client->project_version, $version_info->new_version, '<' ) ) {
@@ -210,6 +215,11 @@ class Updater {
 		$version_info = $this->get_version_info();
 
 		if ( false !== $version_info && is_object( $version_info ) && isset( $version_info->new_version ) ) {
+
+			// Ensure the 'theme' property is set.
+			if ( ! isset( $version_info->theme ) ) {
+				$version_info->theme = $this->client->slug;
+			}
 
 			// If new version available then set to `response`.
 			if ( version_compare( $this->client->project_version, $version_info->new_version, '<' ) ) {
