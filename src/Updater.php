@@ -6,21 +6,21 @@ namespace SureCart\Licensing;
  */
 class Updater {
 	/**
-	 * SureCart\Licensing\Client
+	 * SureCart\Licensing\Client.
 	 *
 	 * @var object
 	 */
 	protected $client;
 
 	/**
-	 * Holds the cache key for the version info
+	 * Holds the cache key for the version info.
 	 *
 	 * @var string
 	 */
-	private $cache_key; // Declared as private
+	private $cache_key; // Declared as private.
 
 	/**
-	 * Initialize the class
+	 * Initialize the class.
 	 *
 	 * @param SureCart\Licensing\Client $client The client.
 	 */
