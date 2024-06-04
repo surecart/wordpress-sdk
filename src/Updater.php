@@ -82,7 +82,7 @@ class Updater {
 			unset( $version_info->sections );
 			
 			// Ensure the 'plugin' property is set
-			if (!isset($version_info->plugin)) {
+			if ( ! isset( $version_info->plugin ) ) {
 				$version_info->plugin = $this->client->basename;
 			}
 
@@ -215,6 +215,11 @@ class Updater {
 		$version_info = $this->get_version_info();
 
 		if ( false !== $version_info && is_object( $version_info ) && isset( $version_info->new_version ) ) {
+
+			// Ensure the 'theme' property is set
+			if ( ! isset( $version_info->theme ) ) {
+				$version_info->theme = $this->client->slug;
+			}
 
 			// If new version available then set to `response`.
 			if ( version_compare( $this->client->project_version, $version_info->new_version, '<' ) ) {
