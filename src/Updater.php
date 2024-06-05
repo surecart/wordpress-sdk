@@ -1,6 +1,8 @@
 <?php
 namespace SureCart\Licensing;
 
+use Exception;
+
 /**
  * This class will handle the updates.
  */
@@ -158,7 +160,22 @@ class Updater {
 		}
 
 		if ( isset( $release->banners ) ) {
-			$release->banners = (array) $release->banners;
+			$release->banners = $this->getReleaseBanners( (array) $release->banners );
+		}
+
+		if ( isset( $release->icons ) ) {
+			$release->icons = $this->getReleaseIcons( (array) $release->icons );
+		}
+
+		// If there is asset path, then try to find the images from the asset path.
+		if ( ! empty( $this->client->asset_path ) ) {
+			if ( ! isset( $release->banners ) || ( isset( $release->banners ) && ! count( $release->banners ) ) ) {
+				$release->banners = $this->findImagesFromAssetPath( 'banner' );
+			}
+
+			if ( ! isset( $release->icons ) || ( isset( $release->icons ) && ! count( $release->icons ) ) ) {
+				$release->icons = $this->findImagesFromAssetPath( 'icon' );
+			}
 		}
 
 		if ( isset( $release->sections ) ) {
@@ -248,5 +265,106 @@ class Updater {
 		}
 
 		return $version_info;
+	}
+
+	/**
+	 * Get processed banners.
+	 *
+	 * @param array $banners The banners.
+	 * @return array         The processed banners.
+	 */
+	public function getReleaseBanners( $banners ) {
+		$release_banners = array();
+
+		foreach ( $banners as $banner ) {
+			if ( strpos( $banner, '772x250' ) !== false ) {
+				$release_banners['low'] = $banner;
+			} elseif ( strpos( $banner, '1544x500' ) !== false ) {
+				$release_banners['high'] = $banner;
+			}
+		}
+
+		return $release_banners;
+	}
+
+	/**
+	 * Get processed icons.
+	 *
+	 * @param array $icons The icons.
+	 * @return array       The processed icons.
+	 */
+	public function getReleaseIcons( $icons ) {
+		$release_icons = array();
+
+		foreach ( $icons as $icon ) {
+			if ( strpos( $icon, '.svg' ) !== false ) {
+				$release_icons['svg'] = $icon;
+			} elseif ( strpos( $icon, '128x128' ) !== false ) {
+				$release_icons['1x'] = $icon;
+			} elseif ( strpos( $icon, '256x256' ) !== false ) {
+				$release_icons['2x'] = $icon;
+			}
+		}
+
+		return $release_icons;
+	}
+
+	/**
+	 * Find images from the asset path.
+	 *
+	 * @param string $prefix The prefix of the image, eg: banner or icon.
+	 * @return array         The images.
+	 */
+	public function findImagesFromAssetPath( $prefix ) {
+		$sizes              = array();
+		$images             = array();
+		$allowed_extensions = array(
+			'jpg',
+			'png',
+		);
+
+		// Set the sizes and allowed extensions for the banner and icon.
+		if ( 'icon' === $prefix ) {
+			$sizes                = array(
+				'1x'  => '128x128',
+				'2x'  => '256x256',
+				'svg' => 'icon',
+			);
+			$allowed_extensions[] = 'svg';
+		} elseif ( 'banner' === $prefix ) {
+			$sizes = array(
+				'low'  => '772x250',
+				'high' => '1544x500',
+			);
+		}
+
+		// Loop through the sizes and extensions to find the images.
+		foreach ( $sizes as $size => $dimension ) {
+			foreach ( $allowed_extensions as $extension ) {
+				$image_file_name = 'svg' === $extension ? "/$prefix.$extension" : "/$prefix-$dimension.$extension";
+				$image_url       = $this->client->asset_path . $image_file_name;
+
+				if ( $this->urlExists( $image_url ) ) {
+					$images[ $size ] = $image_url;
+				}
+			}
+		}
+
+		return $images;
+	}
+
+	/**
+	 * Check if the URL exists.
+	 *
+	 * @param string $url The URL to check.
+	 * @return boolean    True if the URL exists, false if not.
+	 */
+	private function urlExists( $url ) {
+		try {
+			$headers = get_headers( $url );
+			return $headers && strpos( $headers[0], '200' );
+		} catch ( Exception $e ) {
+			return false;
+		}
 	}
 }
