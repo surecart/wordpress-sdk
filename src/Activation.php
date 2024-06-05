@@ -14,9 +14,9 @@ class Activation {
 	protected $endpoint = 'v1/public/activations';
 
 	/**
-	 * SureCart\Licensing\Client
+	 * SureCart Licensing Client
 	 *
-	 * @var object
+	 * @var \SureCart\Licensing\Client
 	 */
 	protected $client;
 
@@ -52,7 +52,7 @@ class Activation {
 		// send the activation request.
 		$activation = $this->client->send_request(
 			'POST',
-			trailingslashit( $this->endpoint ),
+			trailingslashit( $this->endpoint ) . '?expand[]=license&expand[]=license.product',
 			array(
 				'activation' => array(
 					'fingerprint' => esc_url_raw( get_site_url() ),
@@ -86,7 +86,7 @@ class Activation {
 	public function get( $id = '' ) {
 		return $this->client->send_request(
 			'GET',
-			trailingslashit( $this->endpoint ) . $id
+			trailingslashit( $this->endpoint ) . $id . '?expand[]=license&expand[]=license.product'
 		);
 	}
 

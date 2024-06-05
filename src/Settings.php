@@ -296,15 +296,12 @@ class Settings {
 	 * @return Object|false
 	 */
 	public function get_activation() {
-		$activation = false;
-		if ( $this->activation_id ) {
-			$activation = $this->client->activation()->get( $this->activation_id );
-			if ( is_wp_error( $activation ) ) {
-				$this->add_error( 'deactivaed', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
-				$this->clear_options();
-			}
+		if ( is_wp_error( $this->activation ) ) {
+			$this->add_error( 'deactivaed', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
+			$this->clear_options();
 		}
-		return $activation;
+
+		return $this->activation;
 	}
 
 	/**
