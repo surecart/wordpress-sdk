@@ -68,32 +68,34 @@ Please refer to the **installation** step before start using the class.
 
 ```php
 
-if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
-    require_once __DIR__ . '/licensing/src/Client.php';
-}
-
-// initialize client with your plugin name and your public token.
-$client = new \SureCart\Licensing\Client( 'Your Plugin', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
-
-// set your textdomain.
-$client->set_textdomain( 'your-textdomain' );
-
-// add the pre-built license settings page.
-$client->settings()->add_page( 
-    [
-	'type'                 => 'submenu', // Can be: menu, options, submenu.
-	'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
-	'page_title'           => 'Manage License',
-	'menu_title'           => 'Manage License',
-	'capability'           => 'manage_options',
-	'menu_slug'            => $client->slug . '-manage-license',
-	'icon_url'             => '',
-	'position'             => null,
-	'parent_slug'          => '',
-	'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
-	'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
-    ] 
-);
+add_action('init', function(){
+	if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
+		require_once __DIR__ . '/licensing/src/Client.php';
+	}
+	
+	// initialize client with your plugin name and your public token.
+	$client = new \SureCart\Licensing\Client( 'Your Plugin', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
+	
+	// set your textdomain.
+	$client->set_textdomain( 'your-textdomain' );
+	
+	// add the pre-built license settings page.
+	$client->settings()->add_page( 
+		[
+		'type'                 => 'submenu', // Can be: menu, options, submenu.
+		'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
+		'page_title'           => 'Manage License',
+		'menu_title'           => 'Manage License',
+		'capability'           => 'manage_options',
+		'menu_slug'            => $client->slug . '-manage-license',
+		'icon_url'             => '',
+		'position'             => null,
+		'parent_slug'          => '',
+		'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
+		'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
+		] 
+	);
+});
 ```
 
 Make sure you call this function directly, never use any action hook to call this function.
