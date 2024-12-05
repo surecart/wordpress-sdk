@@ -61,7 +61,7 @@ Sections will require a `changelog` property with an html string of your changel
 In order for updates to work, the `slug` in release.json must match the **folder name** of your plugin or theme. 
 So if for example your plugin folder name is `ralphs-biscuits`, the `slug` in release.json must also be `ralphs-biscuits`.
 
-Ensure that the SDK is loaded and initialized on the init hook in your plugin or theme to maintain proper functionality and integration.
+Ensure that the SDK is loaded and initialized on the `init` hook in your plugin or theme to maintain proper functionality and integration.
 
 
 ## Usage Example
