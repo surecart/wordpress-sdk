@@ -51,10 +51,20 @@ Sections will require a `changelog` property with an html string of your changel
   "requires_php": "5.3",
   "sections": {
     "description": "This is my plugin description.",
-    "changelog": "<h4>1.0 –  July 20, 2022</h4><ul><li>Bug fixes.</li><li>Initital release.</li></ul>",
-    "frequently asked questions": "<h4>Question<h4><p>Answer</p>"
+    "changelog": "<h4>1.0 – July 20, 2022</h4><ul><li>Bug fixes.</li><li>Initial release.</li></ul>",
+    "frequently asked questions": "<h4>Question</h4><p>Answer</p>"
+  },
+  "icons": {
+    "1x": "https://example.com/assets/icon-128.png",
+    "2x": "https://example.com/assets/icon-256.png"
+  },
+  "banners": {
+    "low": "https://example.com/assets/banner-772x250.png",
+    "high": "https://example.com/assets/banner-1544x500.png"
   }
 }
+
+
 ```
 
 ### ⚠️ Important
