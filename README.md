@@ -63,8 +63,6 @@ Sections will require a `changelog` property with an html string of your changel
     "high": "https://example.com/assets/banner-1544x500.png"
   }
 }
-
-
 ```
 
 ### ⚠️ Important

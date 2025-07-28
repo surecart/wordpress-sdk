@@ -141,10 +141,12 @@ class Updater {
 
 		$release = $current_release->release_json;
 
+		// must have a slug.
 		if ( ! isset( $release->slug ) ) {
 			return false;
 		}
 
+		// set the new version.
 		$release->new_version = $release->version;
 
 		if ( empty( $release->last_updated ) ) {
@@ -169,7 +171,6 @@ class Updater {
 
 		return $release;
 	}
-
 
 	/**
 	 * Updates information on the "View version x.x details" page with custom data.
