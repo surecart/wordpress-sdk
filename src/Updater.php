@@ -161,6 +161,10 @@ class Updater {
 			$release->banners = (array) $release->banners;
 		}
 
+		if ( isset( $release->icons ) ) {
+			$release->icons = (array) $release->icons;
+		}
+
 		if ( isset( $release->sections ) ) {
 			$release->sections = (array) $release->sections;
 		}
