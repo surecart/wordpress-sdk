@@ -211,60 +211,60 @@ class Client {
 	}
 
 	/**
-	 * Set project basename, slug and version
-	 *
-	 * @return void
-	 */
-	protected function set_basename_and_slug() {
-		$file = wp_normalize_path( $this->file );
-		$themes_dir = trailingslashit( wp_normalize_path( WP_CONTENT_DIR . '/themes' ) );
+ * Set project basename, slug and version
+ *
+ * @return void
+ */
+protected function set_basename_and_slug() {
+	$file       = wp_normalize_path( $this->file );
+	$themes_dir = trailingslashit( wp_normalize_path( WP_CONTENT_DIR . '/themes' ) );
 
-		// It's a plugin.
-		if ( stripos( $file, $themes_dir ) === false ) {
-			$this->basename = plugin_basename( $this->file );
-			list( $this->slug ) = explode( '/', $this->basename );
+	// It's a plugin.
+	if ( stripos( $file, $themes_dir ) === false ) {
+		$this->basename     = plugin_basename( $this->file );
+		list( $this->slug ) = explode( '/', $this->basename );
 
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			$plugin_data = get_plugin_data( $this->file );
-			$this->project_version = $plugin_data['Version'] ?? '';
-			$this->type = 'plugin';
+		$plugin_data           = get_plugin_data( $this->file );
+		$this->project_version = $plugin_data['Version'] ?? '';
+		$this->type            = 'plugin';
 
-			if ( empty( $this->project_version ) ) {
-				add_action(
-					'admin_notices',
-					function() {
-						printf(
-							'<div class="notice notice-error"><p>%s</p></div>',
-							esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your plugin.'
-						);
-					}
-				);
-			}
-		} else {
-			// It's a theme.
-			$this->basename = ltrim( str_replace( $themes_dir, '', $file ), '/' );
-			list( $this->slug ) = explode( '/', $this->basename );
-
-			$theme = wp_get_theme( $this->slug );
-			$this->project_version = $theme->get( 'Version' );
-			$this->type = 'theme';
-
-			if ( empty( $this->project_version ) ) {
-				add_action(
-					'admin_notices',
-					function() {
-						printf(
-							'<div class="notice notice-error"><p>%s</p></div>',
-							esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your theme.'
-						);
-					}
-				);
-			}
+		if ( empty( $this->project_version ) ) {
+			add_action(
+				'admin_notices',
+				function() {
+					printf(
+						'<div class="notice notice-error"><p>%s</p></div>',
+						esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your plugin.'
+					);
+				}
+			);
 		}
+	} else {
+		// It's a theme.
+		$this->basename     = ltrim( str_replace( $themes_dir, '', $file ), '/' );
+		list( $this->slug ) = explode( '/', $this->basename );
 
-		$this->textdomain = $this->slug;
+		$theme                 = wp_get_theme( $this->slug );
+		$this->project_version = $theme->get( 'Version' );
+		$this->type            = 'theme';
+
+		if ( empty( $this->project_version ) ) {
+			add_action(
+				'admin_notices',
+				function() {
+					printf(
+						'<div class="notice notice-error"><p>%s</p></div>',
+						esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your theme.'
+					);
+				}
+			);
+		}
 	}
+
+	$this->textdomain = $this->slug;
+}
 
 
 
