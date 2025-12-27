@@ -220,16 +220,17 @@ class Client {
 		$themes_dir = trailingslashit( wp_normalize_path( WP_CONTENT_DIR . '/themes' ) );
 
 		// It's a plugin.
-		// Use stripos for Windows/case-insensitive filesystems (harmless elsewhere too).
 		if ( stripos( $file, $themes_dir ) === false ) {
-
-			$this->basename = plugin_basename( $this->file );
-			list( $this->slug ) = explode( '/', $this->basename );
+			$this->basename        = plugin_basename( $this->file );
+			list( $this->slug )    = explode( '/', $this->basename );
 
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			$plugin_data = get_plugin_data( $this->file );
 
-			if ( empty( $plugin_data['Version'] ) ) {
+			$plugin_data           = get_plugin_data( $this->file );
+			$this->project_version = $plugin_data['Version'] ?? '';
+			$this->type            = 'plugin';
+
+			if ( empty( $this->project_version ) ) {
 				add_action(
 					'admin_notices',
 					function() {
@@ -241,18 +242,14 @@ class Client {
 				);
 			}
 
-			$this->project_version = $plugin_data['Version'] ?? '';
-			$this->type            = 'plugin';
-
-		// It's a theme.
+			// It's a theme.
 		} else {
+			$this->basename        = ltrim( str_replace( $themes_dir, '', $file ), '/' );
+			list( $this->slug )    = explode( '/', $this->basename );
 
-			// Make basename relative to themes dir (use normalized paths so it works on Windows).
-			$this->basename = ltrim( str_replace( $themes_dir, '', $file ), '/' );
-			list( $this->slug ) = explode( '/', $this->basename );
-
-			$theme = wp_get_theme( $this->slug );
+			$theme                 = wp_get_theme( $this->slug );
 			$this->project_version = $theme->get( 'Version' );
+			$this->type            = 'theme';
 
 			if ( empty( $this->project_version ) ) {
 				add_action(
@@ -265,12 +262,12 @@ class Client {
 					}
 				);
 			}
-
-			$this->type = 'theme';
 		}
 
 		$this->textdomain = $this->slug;
 	}
+
+
 
 	/**
 	 * Send request to remote endpoint
