@@ -130,7 +130,7 @@ $client->set_textdomain( 'your-project-textdomain' );
 ```
 
 ## Example Plugin
-[surecart-plugin-license.zip](https://github.com/user-attachments/files/21472250/surecart-plugin-license.zip)
+[surecart-plugin-license.zip](https://d.pr/f/DVzMC0)
 
 ## Example Theme
-[surecart-theme-license.zip](https://github.com/user-attachments/files/21472254/surecart-theme-license.zip)
+[surecart-theme-license.zip](https://d.pr/f/m51Tt5)
