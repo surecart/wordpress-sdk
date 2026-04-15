@@ -1,4 +1,5 @@
 <?php
+
 namespace SureCart\Licensing;
 
 /**
@@ -165,6 +166,17 @@ class Updater {
 			$release->icons = (array) $release->icons;
 		}
 
+		// If there is asset path, then try to find the images from the asset path.
+		if ( ! empty( $this->client->asset_path ) ) {
+			if ( empty( $release->banners ) ) {
+				$release->banners = $this->findImagesFromAssetPath( 'banner' );
+			}
+
+			if ( empty( $release->icons ) ) {
+				$release->icons = $this->findImagesFromAssetPath( 'icon' );
+			}
+		}
+
 		if ( isset( $release->sections ) ) {
 			$release->sections = (array) $release->sections;
 		}
@@ -252,5 +264,26 @@ class Updater {
 		}
 
 		return $version_info;
+	}
+
+	/**
+	 * Find images from the asset path.
+	 *
+	 * @param string $prefix The prefix of the image, eg: banner or icon.
+	 * @return array         The images.
+	 */
+	public function findImagesFromAssetPath( $prefix ) {
+		$images = array();
+
+		if ( 'icon' === $prefix ) {
+			$images['1x']  = esc_url_raw( $this->client->asset_path . '/icon-128x128.png' );
+			$images['2x']  = esc_url_raw( $this->client->asset_path . '/icon-256x256.png' );
+			$images['svg'] = esc_url_raw( $this->client->asset_path . '/icon.svg' );
+		} elseif ( 'banner' === $prefix ) {
+			$images['low']  = esc_url_raw( $this->client->asset_path . '/banner-772x250.png' );
+			$images['high'] = esc_url_raw( $this->client->asset_path . '/banner-1544x500.png' );
+		}
+
+		return $images;
 	}
 }

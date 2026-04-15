@@ -79,6 +79,13 @@ class Client {
 	public $textdomain;
 
 	/**
+	 * Asset Path
+	 *
+	 * @var string
+	 */
+	public $asset_path;
+
+	/**
 	 * The Object of Updater Class
 	 *
 	 * @var object
@@ -341,5 +348,18 @@ class Client {
 	 */
 	public function set_textdomain( $textdomain ) {
 		$this->textdomain = $textdomain;
+
+		return $this;
+	}
+
+	/**
+	 * Set project asset path for images.
+	 *
+	 * @param string $asset_path The asset path for images.
+	 */
+	public function set_asset_path( $asset_path ) {
+		$this->asset_path = $asset_path;
+
+		return $this;
 	}
 }

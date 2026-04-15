@@ -47,7 +47,7 @@ Sections will require a `changelog` property with an html string of your changel
   "author_profile": "https://surecart.com",
   "version": "0.9.0",
   "requires": "5.6",
-  "tested": "6.1.0",
+  "tested": "6.4.3",
   "requires_php": "5.3",
   "sections": {
     "description": "This is my plugin description.",
@@ -64,6 +64,7 @@ Sections will require a `changelog` property with an html string of your changel
   }
 }
 ```
+> **Note:** Icons and banners in `release.json` take priority over asset path images. If you prefer to serve them from your plugin's asset directory instead, omit the `icons` and `banners` keys from `release.json` and set the asset path using `$client->set_asset_path( $path )`.
 
 ### ⚠️ Important
 In order for updates to work, the `slug` in release.json must match the **folder name** of your plugin or theme. 
@@ -119,6 +120,23 @@ Make sure you call this function directly, never use any action hook to call thi
 
 ```php
 $client = new \SureCart\Licensing\Client( 'Twenty Twelve', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
+```
+## Set asset path (optional)
+
+If you want to serve plugin icons and banners from your asset directory instead of providing URLs in `release.json`, you can set the asset path. This is only used as a fallback when `icons` and `banners` are not present in `release.json`.
+
+```php
+$client->set_asset_path( plugins_url( 'assets', __FILE__ ) );
+```
+
+Expected file structure in your asset directory:
+```
+assets/
+├── icon-128x128.png
+├── icon-256x256.png
+├── icon.svg
+├── banner-772x250.png
+└── banner-1544x500.png
 ```
 
 ## Set textdomain
