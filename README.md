@@ -8,6 +8,7 @@ Clone the repository in your project.
 cd /path/to/your/project/folder
 git clone https://github.com/surecart/wordpress-sdk.git licensing
 ```
+Or, you can download the [repository zip file](https://github.com/surecart/wordpress-sdk/releases/latest), and place it in the licensing folder of your plugin or theme.
 
 Now include the dependencies in your plugin/theme.
 
@@ -50,24 +51,29 @@ Sections will require a `changelog` property with an html string of your changel
   "requires_php": "5.3",
   "sections": {
     "description": "This is my plugin description.",
-    "changelog": "<h4>1.0 –  July 20, 2022</h4><ul><li>Bug fixes.</li><li>Initital release.</li></ul>",
-    "frequently asked questions": "<h4>Question<h4><p>Answer</p>"
+    "changelog": "<h4>1.0 – July 20, 2022</h4><ul><li>Bug fixes.</li><li>Initial release.</li></ul>",
+    "frequently asked questions": "<h4>Question</h4><p>Answer</p>"
   },
-  "icons": [
-    "https://example.com/assets/icon-128x128.png",
-    "https://example.com/assets/icon-256x256.png",
-    "https://example.com/assets/icon.svg",
-  ],
-  "banners": [
-    "https://example.com/assets/banner-772x250.png",
-    "https://example.com/assets/banner-1544x500.png",
-  ]
+  "icons": {
+    "1x": "https://example.com/assets/icon-128.png",
+    "2x": "https://example.com/assets/icon-256.png"
+  },
+  "banners": {
+    "low": "https://example.com/assets/banner-772x250.png",
+    "high": "https://example.com/assets/banner-1544x500.png"
+  }
 }
 ```
 !!! note Handling Release Images from urls or asset path
   - **URL:** If you want to set the reease icons and banners from url, then fill the above URL's. And, those will get higher priority than asset path images.
 
   - **Asset path:** And if you want to get icons and banners from plugin asset directory, after instantiate the client, set asset path using `$client->set_asset_path( $path )`, And hence, no need to pass banners, icons from `release.json` file.
+
+### ⚠️ Important
+In order for updates to work, the `slug` in release.json must match the **folder name** of your plugin or theme. 
+So if for example your plugin folder name is `ralphs-biscuits`, the `slug` in release.json must also be `ralphs-biscuits`.
+
+Ensure that the SDK is loaded and initialized on the `init` hook in your plugin or theme to maintain proper functionality and integration.
 
 
 ## Usage Example
@@ -76,32 +82,34 @@ Please refer to the **installation** step before start using the class.
 
 ```php
 
-if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
-    require_once __DIR__ . '/licensing/src/Client.php';
-}
-
-// initialize client with your plugin name and your public token.
-$client = new \SureCart\Licensing\Client( 'Your Plugin', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
-
-// set your textdomain.
-$client->set_textdomain( 'your-textdomain' );
-
-// add the pre-built license settings page.
-$client->settings()->add_page( 
-    [
-	'type'                 => 'submenu', // Can be: menu, options, submenu.
-	'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
-	'page_title'           => 'Manage License',
-	'menu_title'           => 'Manage License',
-	'capability'           => 'manage_options',
-	'menu_slug'            => $client->slug . '-manage-license',
-	'icon_url'             => '',
-	'position'             => null,
-	'parent_slug'          => '',
-	'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
-	'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
-    ] 
-);
+add_action('init', function(){
+	if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
+		require_once __DIR__ . '/licensing/src/Client.php';
+	}
+	
+	// initialize client with your plugin name and your public token.
+	$client = new \SureCart\Licensing\Client( 'Your Plugin', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
+	
+	// set your textdomain.
+	$client->set_textdomain( 'your-textdomain' );
+	
+	// add the pre-built license settings page.
+	$client->settings()->add_page( 
+		[
+			'type'                 => 'submenu', // Can be: menu, options, submenu.
+			'parent_slug'          => 'your-plugin-menu-slug', // add your plugin menu slug.
+			'page_title'           => 'Manage License',
+			'menu_title'           => 'Manage License',
+			'capability'           => 'manage_options',
+			'menu_slug'            => $client->slug . '-manage-license',
+			'icon_url'             => '',
+			'position'             => null,
+			'parent_slug'          => '',
+			'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
+			'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
+		] 
+	);
+});
 ```
 
 Make sure you call this function directly, never use any action hook to call this function.
@@ -131,3 +139,9 @@ You may set your own textdomain to translate text.
 ```php
 $client->set_textdomain( 'your-project-textdomain' );
 ```
+
+## Example Plugin
+[surecart-plugin-license.zip](https://d.pr/f/DVzMC0)
+
+## Example Theme
+[surecart-theme-license.zip](https://d.pr/f/m51Tt5)
