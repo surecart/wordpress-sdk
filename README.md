@@ -121,12 +121,22 @@ Make sure you call this function directly, never use any action hook to call thi
 ```php
 $client = new \SureCart\Licensing\Client( 'Twenty Twelve', 'pt_jzieNYQdE5LMAxksscgU6H4', __FILE__ );
 ```
-## Set asset path.
+## Set asset path (optional)
 
-You should set your plugin files asset path for icons and banners.
+If you want to serve plugin icons and banners from your asset directory instead of providing URLs in `release.json`, you can set the asset path. This is only used as a fallback when `icons` and `banners` are not present in `release.json`.
 
 ```php
-$client->set_asset_path( 'your-project-asset-path' )
+$client->set_asset_path( 'https://example.com/wp-content/plugins/my-plugin/assets' );
+```
+
+Expected file structure in your asset directory:
+```
+assets/
+├── icon-128x128.png
+├── icon-256x256.png
+├── icon.svg
+├── banner-772x250.png
+└── banner-1544x500.png
 ```
 
 ## Set textdomain
