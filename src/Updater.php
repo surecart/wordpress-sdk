@@ -1,6 +1,6 @@
 <?php
-namespace SureCart\Licensing;
 
+namespace SureCart\Licensing;
 
 /**
  * This class will handle the updates.

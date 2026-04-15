@@ -126,7 +126,7 @@ $client = new \SureCart\Licensing\Client( 'Twenty Twelve', 'pt_jzieNYQdE5LMAxkss
 If you want to serve plugin icons and banners from your asset directory instead of providing URLs in `release.json`, you can set the asset path. This is only used as a fallback when `icons` and `banners` are not present in `release.json`.
 
 ```php
-$client->set_asset_path( 'https://example.com/wp-content/plugins/my-plugin/assets' );
+$client->set_asset_path( plugins_url( 'assets', __FILE__ ) );
 ```
 
 Expected file structure in your asset directory:
