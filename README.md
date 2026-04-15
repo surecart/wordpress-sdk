@@ -64,10 +64,7 @@ Sections will require a `changelog` property with an html string of your changel
   }
 }
 ```
-!!! note Handling Release Images from urls or asset path
-  - **URL:** If you want to set the reease icons and banners from url, then fill the above URL's. And, those will get higher priority than asset path images.
-
-  - **Asset path:** And if you want to get icons and banners from plugin asset directory, after instantiate the client, set asset path using `$client->set_asset_path( $path )`, And hence, no need to pass banners, icons from `release.json` file.
+> **Note:** Icons and banners in `release.json` take priority over asset path images. If you prefer to serve them from your plugin's asset directory instead, omit the `icons` and `banners` keys from `release.json` and set the asset path using `$client->set_asset_path( $path )`.
 
 ### ⚠️ Important
 In order for updates to work, the `slug` in release.json must match the **folder name** of your plugin or theme. 
