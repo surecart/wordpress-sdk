@@ -326,28 +326,11 @@ class Updater {
 			foreach ( $allowed_extensions as $extension ) {
 				$image_file_name = 'svg' === $extension ? "/$prefix.$extension" : "/$prefix-$dimension.$extension";
 				$image_url       = $this->client->asset_path . $image_file_name;
-
-				if ( $this->urlExists( $image_url ) ) {
-					$images[ $size ] = $image_url;
-				}
+				$images[ $size ] = esc_url_raw( $image_url );
 			}
 		}
 
 		return $images;
 	}
 
-	/**
-	 * Check if the URL exists.
-	 *
-	 * @param string $url The URL to check.
-	 * @return boolean    True if the URL exists, false if not.
-	 */
-	private function urlExists( $url ) {
-		try {
-			$headers = get_headers( $url );
-			return $headers && strpos( $headers[0], '200' );
-		} catch ( Exception $e ) {
-			return false;
-		}
-	}
 }
