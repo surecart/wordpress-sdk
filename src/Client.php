@@ -217,58 +217,64 @@ class Client {
 		return trailingslashit( apply_filters( 'surecart_licensing_endpoint', 'https://api.surecart.com' ) );
 	}
 
+
 	/**
 	 * Set project basename, slug and version
 	 *
 	 * @return void
 	 */
 	protected function set_basename_and_slug() {
-		// it's a plugin.
-		if ( strpos( $this->file, WP_CONTENT_DIR . '/themes/' ) === false ) {
-			$this->basename = plugin_basename( $this->file );
+		$file       = wp_normalize_path( $this->file );
+		$themes_dir = trailingslashit( wp_normalize_path( WP_CONTENT_DIR . '/themes' ) );
 
+		// It's a plugin.
+		if ( stripos( $file, $themes_dir ) === false ) {
+			$this->basename     = plugin_basename( $this->file );
 			list( $this->slug ) = explode( '/', $this->basename );
 
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			$plugin_data = get_plugin_data( $this->file );
-
-			if ( empty( $plugin_data['Version'] ) ) {
-				add_action(
-					'admin_notices',
-					function() {
-						printf( '<div class="notice notice-error"><p>' . esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your plugin.</p></div>' );
-					}
-				);
-			}
-
-			$this->project_version = $plugin_data['Version'];
+			$plugin_data           = get_plugin_data( $this->file );
+			$this->project_version = $plugin_data['Version'] ?? '';
 			$this->type            = 'plugin';
 
-			// it's a theme.
-		} else {
-			$this->basename = str_replace( WP_CONTENT_DIR . '/themes/', '', $this->file );
-
-			list( $this->slug ) = explode( '/', $this->basename );
-
-			$theme = wp_get_theme( $this->slug );
-
-			$this->project_version = $theme->version;
-
-			if ( empty( $theme->version ) ) {
+			if ( empty( $this->project_version ) ) {
 				add_action(
 					'admin_notices',
 					function() {
-						printf( '<div class="notice notice-error"><p>' . esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your theme.</p></div>' );
+						printf(
+							'<div class="notice notice-error"><p>%s</p></div>',
+							esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your plugin.'
+						);
 					}
 				);
 			}
 
-			$this->type = 'theme';
+			// It's a theme.
+		} else {
+			$this->basename     = ltrim( str_replace( $themes_dir, '', $file ), '/' );
+			list( $this->slug ) = explode( '/', $this->basename );
+
+			$theme                 = wp_get_theme( $this->slug );
+			$this->project_version = $theme->get( 'Version' );
+			$this->type            = 'theme';
+
+			if ( empty( $this->project_version ) ) {
+				add_action(
+					'admin_notices',
+					function() {
+						printf(
+							'<div class="notice notice-error"><p>%s</p></div>',
+							esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your theme.'
+						);
+					}
+				);
+			}
 		}
 
 		$this->textdomain = $this->slug;
 	}
+
 
 	/**
 	 * Send request to remote endpoint
