@@ -46,6 +46,59 @@ class Settings {
 	}
 
 	/**
+	 * Get the normalized slug used for config constant / env var names.
+	 *
+	 * Examples:
+	 * - my-plugin => MY_PLUGIN
+	 * - myplugin  => MYPLUGIN
+	 *
+	 * @return string
+	 */
+	protected function config_slug() {
+		$slug = strtoupper( (string) $this->client->slug );
+		$slug = preg_replace( '/[^A-Z0-9]+/', '_', $slug );
+		$slug = trim( $slug, '_' );
+		return $slug;
+	}
+
+	/**
+	 * Read a license key from configuration.
+	 *
+	 * Supports (in priority order):
+	 * 1) A per-product constant, e.g. SURECART_LICENSE_KEY_MY_PLUGIN
+	 * 2) A per-product env var, e.g. SURECART_LICENSE_KEY_MY_PLUGIN
+	 *
+	 * @return string|null
+	 */
+	protected function configured_license_key() {
+		$slug = $this->config_slug();
+		if ( ! $slug ) {
+			return null;
+		}
+
+		$per_product_constant = 'SURECART_LICENSE_KEY_' . $slug;
+		if ( defined( $per_product_constant ) && constant( $per_product_constant ) ) {
+			return (string) constant( $per_product_constant );
+		}
+
+		$per_product_env = getenv( $per_product_constant );
+		if ( ! empty( $per_product_env ) ) {
+			return (string) $per_product_env;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Is the license key managed via config (constant/env) rather than stored options?
+	 *
+	 * @return bool
+	 */
+	protected function is_license_key_configured() {
+		return null !== $this->configured_license_key();
+	}
+
+	/**
 	 * Add the settings page.
 	 *
 	 * @param array $args Settings page args.
@@ -211,7 +264,7 @@ class Settings {
 		$this->print_css();
 
 		$activation = $this->get_activation();
-		$action     = ! empty( $activation->id ) ? 'deactivate' : 'activate'
+		$action     = ! empty( $activation->id ) ? 'deactivate' : 'activate';
 		?>
 
 		<div class="wrap">
@@ -225,16 +278,22 @@ class Settings {
 					<input type="hidden" name="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>">
 
 					<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
-					<label for="license_key">
-						<?php if ( 'activate' === $action ) : ?> 
+					<label for="license_key" <?php echo $this->is_license_key_configured() ? 'hidden' : ''; ?> >
+						<?php if ( 'activate' === $action ) : ?>
 							<?php echo esc_html( sprintf( $this->client->__( 'Enter your license key to activate %s.', 'surecart' ), $this->client->name ) ); ?>
 						<?php else : ?>
 							<?php echo esc_html( sprintf( $this->client->__( 'Your license is succesfully activated for this site.', 'surecart' ), $this->client->name ) ); ?>
 						<?php endif; ?>
 					</label>
 
-					<?php if ( 'activate' === $action ) : ?> 
-						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
+					<?php if ( 'activate' === $action && ! $this->is_license_key_configured() ) : ?>
+						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="" autofocus>
+					<?php endif; ?>
+
+					<?php if ( 'activate' === $action && $this->is_license_key_configured() ) : ?>
+						<p class="description">
+							<?php echo esc_html( $this->client->__( 'Your license key is configured via wp-config.php (or an environment variable). To change it, update your server configuration.', 'surecart' ) ); ?>
+						</p>
 					<?php endif; ?>
 
 					<?php if ( isset( $_GET['debug'] ) ) : // phpcs:ignore  ?>
@@ -330,7 +389,13 @@ class Settings {
 
 		// handle activation.
 		if ( 'activate' === $_POST['_action'] ) {
-			$activated = $this->client->license()->activate( sanitize_text_field( $_POST['license_key'] ) );
+			// Prefer wp-config.php constants / env vars when present.
+			$key = $this->configured_license_key();
+			if ( empty( $key ) && isset( $_POST['license_key'] ) ) {
+				$key = sanitize_text_field( $_POST['license_key'] );
+			}
+
+			$activated = $this->client->license()->activate( $key );
 			if ( is_wp_error( $activated ) ) {
 				$this->add_error( $activated->get_error_code(), $activated->get_error_message() );
 				return;
@@ -427,6 +492,12 @@ class Settings {
 	 * @return mixed
 	 */
 	public function __get( $name ) {
+		if ( 'license_key' === $name ) {
+			$configured = $this->configured_license_key();
+			if ( null !== $configured ) {
+				return $configured;
+			}
+		}
 		return $this->get_option( 'sc_' . $name );
 	}
 
@@ -439,6 +510,11 @@ class Settings {
 	 * @return bool
 	 */
 	public function __set( $name, $value ) {
+		// If the license key is managed via configuration, don't persist it to the database.
+		// We still return true here to avoid breaking activation flows that also store IDs.
+		if ( 'license_key' === $name && $this->is_license_key_configured() ) {
+			return true;
+		}
 		return $this->set_option( 'sc_' . $name, $value );
 	}
 }
