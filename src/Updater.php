@@ -44,6 +44,7 @@ class Updater {
 	 */
 	public function run_plugin_hooks() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_plugin_update' ) );
+		add_filter( 'site_transient_update_plugins', array( $this, 'normalize_plugin_update_transient' ) );
 		add_filter( 'plugins_api', array( $this, 'plugins_api_filter' ), 10, 3 );
 	}
 
@@ -73,6 +74,8 @@ class Updater {
 		}
 
 		if ( ! empty( $transient_data->response ) && ! empty( $transient_data->response[ $this->client->basename ] ) ) {
+			// Normalize a possibly stale entry persisted by pre-1.2.0 SDKs, where `icons`/`banners` were stored as stdClass and would fatal on update-core.php.
+			$transient_data->response[ $this->client->basename ] = $this->normalize_update_assets( $transient_data->response[ $this->client->basename ] );
 			return $transient_data;
 		}
 
@@ -89,7 +92,7 @@ class Updater {
 
 			// If new version available then set to `response`.
 			if ( version_compare( $this->client->project_version, $version_info->new_version, '<' ) ) {
-				$transient_data->response[ $this->client->basename ] = $version_info;
+				$transient_data->response[ $this->client->basename ] = $this->normalize_update_assets( $version_info );
 			} else {
 				// If new version is not available then set to `no_update`.
 				$transient_data->no_update[ $this->client->basename ] = $version_info;
@@ -98,6 +101,58 @@ class Updater {
 			$transient_data->last_checked                       = time();
 			$transient_data->checked[ $this->client->basename ] = $this->client->project_version;
 		}
+
+		return $transient_data;
+	}
+
+	/**
+	 * Normalize a plugin update entry's image assets to arrays.
+	 *
+	 * Pre-1.2.0 SDKs persisted `icons`/`banners` as stdClass into the
+	 * `update_plugins` site transient. WordPress core dereferences these as
+	 * arrays on update-core.php, which fatals on an object. This re-casts them
+	 * defensively and is idempotent (casting an existing array is a no-op).
+	 *
+	 * @param object $entry The plugin update entry.
+	 * @return object       The normalized plugin update entry.
+	 */
+	private function normalize_update_assets( $entry ) {
+		if ( ! is_object( $entry ) ) {
+			return $entry;
+		}
+
+		if ( isset( $entry->icons ) ) {
+			$entry->icons = (array) $entry->icons;
+		}
+
+		if ( isset( $entry->banners ) ) {
+			$entry->banners = (array) $entry->banners;
+		}
+
+		return $entry;
+	}
+
+	/**
+	 * Normalize our plugin's entry on every `update_plugins` transient read.
+	 *
+	 * Fires on `site_transient_update_plugins`, including the read in
+	 * `get_plugin_updates()` on update-core.php. This guards the sub-minute
+	 * window where `wp_update_plugins()` bails without re-setting the transient
+	 * and core reads a stale pre-1.2.0 stdClass entry directly.
+	 *
+	 * @param mixed $transient_data The `update_plugins` site transient.
+	 * @return mixed                The transient with our entry normalized.
+	 */
+	public function normalize_plugin_update_transient( $transient_data ) {
+		if ( ! is_object( $transient_data ) || empty( $transient_data->response ) ) {
+			return $transient_data;
+		}
+
+		if ( empty( $transient_data->response[ $this->client->basename ] ) ) {
+			return $transient_data;
+		}
+
+		$transient_data->response[ $this->client->basename ] = $this->normalize_update_assets( $transient_data->response[ $this->client->basename ] );
 
 		return $transient_data;
 	}
