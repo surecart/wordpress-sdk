@@ -293,8 +293,9 @@ class Settings {
 	/**
 	 * Get the activation.
 	 *
-	 * Only a 404 proves the activation is gone. Any other failure (timeout, 5xx,
-	 * rate limit, auth) is transient, so the stored key must survive it.
+	 * A read never deletes the license key; only an explicit deactivate does. A 404
+	 * means the activation is gone, so drop just the activation id and let the user
+	 * re-activate with the key pre-filled. Any other failure is transient: keep everything.
 	 *
 	 * @return Object|false
 	 */
@@ -310,8 +311,8 @@ class Settings {
 		}
 
 		if ( 'not_found' === $activation->get_error_code() ) {
-			$this->add_error( 'deactivated', $this->client->__( 'Your license has been deactivated for this site.' ) );
-			$this->clear_options();
+			$this->activation_id = null;
+			$this->add_error( 'activation_removed', $this->client->__( 'The activation for this site was removed. Click Activate License to reconnect it.' ) );
 			return false;
 		}
 
