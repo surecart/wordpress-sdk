@@ -293,9 +293,10 @@ class Settings {
 	/**
 	 * Get the activation.
 	 *
-	 * A read never deletes the license key; only an explicit deactivate does. A 404
-	 * means the activation is gone, so drop just the activation id and let the user
-	 * re-activate with the key pre-filled. Any other failure is transient: keep everything.
+	 * A read never writes to stored options; it only surfaces an error message.
+	 * On a 404 the stale activation_id is left in the database (it gets overwritten
+	 * on reactivation), but this still returns false so the page shows "Activate
+	 * License" instead of a "Deactivate License" button that would just keep failing.
 	 *
 	 * @return Object|false
 	 */
@@ -311,7 +312,6 @@ class Settings {
 		}
 
 		if ( 'not_found' === $activation->get_error_code() ) {
-			$this->activation_id = null;
 			$this->add_error( 'activation_removed', $this->client->__( 'The activation for this site was removed. Click Activate License to reconnect it.' ) );
 			return false;
 		}
