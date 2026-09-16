@@ -245,7 +245,7 @@ class License {
 	 */
 	public function validate_license( $license ) {
 		if ( is_wp_error( $license ) ) {
-			if ( $license->get_error_code( 'not_found' ) ) {
+			if ( 'not_found' === $license->get_error_code() ) {
 				return new \WP_Error( $license->get_error_code(), $this->client->__( 'This license key is not valid. Please double check it and try again.' ) );
 			}
 			return $license;
