@@ -293,18 +293,33 @@ class Settings {
 	/**
 	 * Get the activation.
 	 *
+	 * A read never writes to stored options; it only surfaces an error message.
+	 * On a 404 the stale activation_id is left in the database (it gets overwritten
+	 * on reactivation), but this still returns false so the page shows "Activate
+	 * License" instead of a "Deactivate License" button that would just keep failing.
+	 *
 	 * @return Object|false
 	 */
 	public function get_activation() {
-		$activation = false;
-		if ( $this->activation_id ) {
-			$activation = $this->client->activation()->get( $this->activation_id );
-			if ( is_wp_error( $activation ) ) {
-				$this->add_error( 'deactivaed', $this->client->__( 'Your license has been deactivated for this site.', 'surecart' ) );
-				$this->clear_options();
-			}
+		if ( ! $this->activation_id ) {
+			return false;
 		}
-		return $activation;
+
+		$activation = $this->client->activation()->get( $this->activation_id );
+
+		if ( ! is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
+		if ( 'not_found' === $activation->get_error_code() ) {
+			$this->add_error( 'activation_removed', $this->client->__( 'The activation for this site was removed. Click Activate License to reconnect it.' ) );
+			return false;
+		}
+
+		$this->add_error( 'unverified', $this->client->__( 'Could not verify your license right now. Your license key has been kept; please try again later.' ) );
+
+		// Keep the form in "activated" state so the user is not asked to re-enter the key.
+		return (object) array( 'id' => $this->activation_id );
 	}
 
 	/**
