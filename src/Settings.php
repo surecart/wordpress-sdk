@@ -365,6 +365,7 @@ class Settings {
 			$deactivated = $this->client->license()->deactivate();
 			if ( is_wp_error( $deactivated ) ) {
 				$this->add_error( $deactivated->get_error_code(), $deactivated->get_error_message() );
+				return;
 			}
 
 			if ( ! empty( $this->menu_args['deactivated_redirect'] ) ) {
