@@ -57,6 +57,7 @@ class License {
 	 * @throws \Exception If something goes wrong.
 	 */
 	public function activate( $key = '' ) {
+		$activation_id = '';
 		try {
 			// validate the license and store it.
 			$license = $this->validate( $key, true );
@@ -65,17 +66,20 @@ class License {
 			if ( is_wp_error( $activation ) ) {
 				throw new \Exception( $activation->get_error_message() );
 			}
-			$this->client->settings()->activation_id = $activation->id;
+			$activation_id                           = $activation->id;
+			$this->client->settings()->activation_id = $activation_id;
 			// validate the release.
 			$this->validate_release();
 		} catch ( \Exception $e ) {
-			// undo activation.
-			$activation = $this->client->activation()->get();
-			if ( $activation ) {
-				$this->client->activation()->delete();
-			}
 			// on error, clear options.
 			$this->client->settings()->clear_options();
+			// undo the activation this attempt created.
+			$undone = $activation_id ? $this->client->activation()->delete( $activation_id ) : true;
+			if ( is_wp_error( $undone ) && 'not_found' !== $undone->get_error_code() ) {
+				// keep its id, so Deactivate License can remove it.
+				$this->client->settings()->activation_id = $activation_id;
+				return new \WP_Error( 'error', $e->getMessage() . ' ' . $this->client->__( 'The activation could not be undone. Click Deactivate License to remove it.' ) );
+			}
 			// return \WP_Error.
 			return new \WP_Error( 'error', $e->getMessage() );
 		}
