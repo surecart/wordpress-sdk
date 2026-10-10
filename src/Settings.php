@@ -385,7 +385,7 @@ class Settings {
 		?>
 		<div class="spinner is-active"></div>
 		<script>
-			window.location.assign("<?php echo esc_url( $url ); ?>");
+			window.location.assign(<?php echo wp_json_encode( esc_url_raw( $url ) ); ?>);
 		</script>
 		<?php
 	}
