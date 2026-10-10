@@ -222,7 +222,6 @@ class Settings {
 				<form method="post" action="<?php echo esc_attr( $this->form_action_url() ); ?>">
 					<input type="hidden" name="_action" value="<?php echo esc_attr( $action ); ?>">
 					<input type="hidden" name="_nonce" value="<?php echo esc_attr( wp_create_nonce( $this->client->name ) ); ?>">
-					<input type="hidden" name="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>">
 
 					<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
 					<label for="license_key">
@@ -234,15 +233,7 @@ class Settings {
 					</label>
 
 					<?php if ( 'activate' === $action ) : ?> 
-						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="<?php echo esc_attr( $this->license_key ); ?>" autofocus>
-					<?php endif; ?>
-
-					<?php if ( isset( $_GET['debug'] ) ) : // phpcs:ignore  ?>
-						<label for="license_id"><?php echo esc_html( sprintf( $this->client->__( 'License ID', 'surecart' ), $this->client->name ) ); ?></label>
-						<input class="widefat" type="text" autocomplete="off" name="license_id" id="license_id" value="<?php echo esc_attr( $this->license_id ); ?>" autofocus>
-
-						<label for="activation_id"><?php echo esc_html( sprintf( $this->client->__( 'Activation ID', 'surecart' ), $this->client->name ) ); ?></label>
-						<input class="widefat" type="text" autocomplete="off" name="activation_id" id="activation_id" value="<?php echo esc_attr( $this->activation_id ); ?>" autofocus>
+						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="" autofocus>
 					<?php endif; ?>
 
 					<?php submit_button( 'activate' === $action ? $this->client->__( 'Activate License' ) : $this->client->__( 'Deactivate License' ) ); ?>
@@ -345,7 +336,12 @@ class Settings {
 
 		// handle activation.
 		if ( 'activate' === $_POST['_action'] ) {
-			$activated = $this->client->license()->activate( sanitize_text_field( $_POST['license_key'] ) );
+			$license_key = isset( $_POST['license_key'] ) ? sanitize_text_field( $_POST['license_key'] ) : '';
+			// the form doesn't print the stored key, so an empty field reuses it.
+			if ( '' === $license_key ) {
+				$license_key = (string) $this->license_key;
+			}
+			$activated = $this->client->license()->activate( $license_key );
 			if ( is_wp_error( $activated ) ) {
 				$this->add_error( $activated->get_error_code(), $activated->get_error_message() );
 				return;
