@@ -361,7 +361,8 @@ class Settings {
 
 		// handle deactivation.
 		if ( 'deactivate' === $_POST['_action'] ) {
-			$deactivated = $this->client->license()->deactivate( sanitize_text_field( $_POST['activation_id'] ) );
+			// deactivate the stored activation, never one the form posts.
+			$deactivated = $this->client->license()->deactivate();
 			if ( is_wp_error( $deactivated ) ) {
 				$this->add_error( $deactivated->get_error_code(), $deactivated->get_error_message() );
 			}
