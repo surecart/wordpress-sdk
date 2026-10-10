@@ -131,6 +131,17 @@ class Updater {
 	}
 
 	/**
+	 * Clear the cached version info and WordPress' update data, which hold the package link.
+	 * Call it when the license changes.
+	 *
+	 * @return void
+	 */
+	public function clear_cache() {
+		delete_transient( $this->cache_key );
+		delete_site_transient( 'theme' === $this->client->type ? 'update_themes' : 'update_plugins' );
+	}
+
+	/**
 	 * Get plugin info from SureCart\Licensing
 	 */
 	private function get_project_latest_version() {
