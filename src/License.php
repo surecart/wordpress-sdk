@@ -73,6 +73,7 @@ class License {
 		} catch ( \Exception $e ) {
 			// on error, clear options.
 			$this->client->settings()->clear_options();
+			$this->client->updater()->clear_cache();
 			// undo the activation this attempt created.
 			$undone = $activation_id ? $this->client->activation()->delete( $activation_id ) : true;
 			if ( is_wp_error( $undone ) && 'not_found' !== $undone->get_error_code() ) {
@@ -83,6 +84,8 @@ class License {
 			// return \WP_Error.
 			return new \WP_Error( 'error', $e->getMessage() );
 		}
+
+		$this->client->updater()->clear_cache();
 
 		return true;
 	}
@@ -105,12 +108,14 @@ class License {
 			// it has been deleted remotely.
 			if ( 'not_found' === $deactivated->get_error_code() ) {
 				$this->client->settings()->clear_options();
+				$this->client->updater()->clear_cache();
 				return true;
 			}
 			return $deactivated;
 		}
 
 		$this->client->settings()->clear_options();
+		$this->client->updater()->clear_cache();
 		return true;
 	}
 
