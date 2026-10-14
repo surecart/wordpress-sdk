@@ -145,9 +145,9 @@ $client->set_textdomain( 'your-project-textdomain' );
 ```
 
 ## Example Plugin
-[surecart-plugin-license.zip](https://d.pr/f/6ZyfAS)
+[surecart-plugin-license.zip](https://d.pr/f/6MPcya)
 
 ## Example Theme
-[surecart-theme-license.zip](https://d.pr/f/RK8NFS)
+[surecart-theme-license.zip](https://d.pr/f/mYc39R)
 
 For full setup and functionality details, see the official documentation: [Licensing Setup and Functionality](https://surecart.com/docs/licensing-setup-and-functionality/).
