@@ -236,15 +236,17 @@ class Settings {
 
 					<h2><?php echo esc_html( $this->menu_args['page_title'] ); ?></h2>
 					<label for="license_key">
-						<?php if ( 'activate' === $action ) : ?> 
+						<?php if ( 'activate' === $action ) : ?>
 							<?php echo esc_html( sprintf( $this->client->__( 'Enter your license key to activate %s.', 'surecart' ), $this->client->name ) ); ?>
+						<?php elseif ( ! $this->license_key ) : ?>
+							<?php echo esc_html( $this->client->__( 'The last activation attempt failed and could not be undone. Click Deactivate License to remove it.' ) ); ?>
 						<?php else : ?>
 							<?php echo esc_html( sprintf( $this->client->__( 'Your license is succesfully activated for this site.', 'surecart' ), $this->client->name ) ); ?>
 						<?php endif; ?>
 					</label>
 
 					<?php if ( 'activate' === $action ) : ?> 
-						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="" autofocus>
+						<input class="widefat" type="password" autocomplete="off" name="license_key" id="license_key" value="" placeholder="<?php echo $this->license_key ? esc_attr( $this->client->__( 'Leave blank to use the saved key' ) ) : ''; ?>" autofocus>
 					<?php endif; ?>
 
 					<?php submit_button( 'activate' === $action ? $this->client->__( 'Activate License' ) : $this->client->__( 'Deactivate License' ) ); ?>
@@ -347,7 +349,7 @@ class Settings {
 
 		// handle activation.
 		if ( 'activate' === $_POST['_action'] ) {
-			$license_key = isset( $_POST['license_key'] ) ? sanitize_text_field( $_POST['license_key'] ) : '';
+			$license_key = isset( $_POST['license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['license_key'] ) ) : '';
 			// the form doesn't print the stored key, so an empty field reuses it.
 			if ( '' === $license_key ) {
 				$license_key = (string) $this->license_key;
