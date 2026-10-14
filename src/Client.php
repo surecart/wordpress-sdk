@@ -12,7 +12,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	public $version = '1.2.2';
+	public $version = '1.2.3';
 
 	/**
 	 * Name of the plugin
