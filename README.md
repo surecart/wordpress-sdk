@@ -101,15 +101,12 @@ add_action('init', function(){
 			'menu_slug'            => $client->slug . '-manage-license',
 			'icon_url'             => '',
 			'position'             => null,
-			'parent_slug'          => '',
 			'activated_redirect'   => admin_url( 'admin.php?page=my-plugin-page' ), // should you want to redirect on activation of license.
 			'deactivated_redirect' => admin_url( 'admin.php?page=my-plugin-deactivation-page' ), // should you want to redirect on detactivation of license.
 		] 
 	);
 });
 ```
-
-Make sure you call this function directly, never use any action hook to call this function.
 
 > For plugins example code that needs to be used on your main plugin file.
 > For themes example code that needs to be used on your themes `functions.php` file.
@@ -148,9 +145,9 @@ $client->set_textdomain( 'your-project-textdomain' );
 ```
 
 ## Example Plugin
-[surecart-plugin-license.zip](https://d.pr/f/6ZyfAS)
+[surecart-plugin-license.zip](https://d.pr/f/6MPcya)
 
 ## Example Theme
-[surecart-theme-license.zip](https://d.pr/f/RK8NFS)
+[surecart-theme-license.zip](https://d.pr/f/mYc39R)
 
 For full setup and functionality details, see the official documentation: [Licensing Setup and Functionality](https://surecart.com/docs/licensing-setup-and-functionality/).
