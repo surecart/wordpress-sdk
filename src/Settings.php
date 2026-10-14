@@ -166,12 +166,23 @@ class Settings {
 	}
 
 	/**
+	 * Replace all options.
+	 *
+	 * @param array $options The options.
+	 *
+	 * @return bool
+	 */
+	public function set_options( $options ) {
+		return update_option( $this->option_key, (array) $options );
+	}
+
+	/**
 	 * Clear out the options.
 	 *
 	 * @return bool
 	 */
 	public function clear_options() {
-		return update_option( $this->option_key, array() );
+		return $this->set_options( array() );
 	}
 
 	/**

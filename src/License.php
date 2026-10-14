@@ -57,6 +57,8 @@ class License {
 	 * @throws \Exception If something goes wrong.
 	 */
 	public function activate( $key = '' ) {
+		$settings      = $this->client->settings();
+		$previous      = $settings->get_options(); // restored if this attempt fails.
 		$activation_id = '';
 		try {
 			// validate the license and store it.
@@ -66,21 +68,24 @@ class License {
 			if ( is_wp_error( $activation ) ) {
 				throw new \Exception( $activation->get_error_message() );
 			}
-			$activation_id                           = $activation->id;
-			$this->client->settings()->activation_id = $activation_id;
+			$activation_id           = $activation->id;
+			$settings->activation_id = $activation_id;
 			// validate the release.
 			$this->validate_release();
 		} catch ( \Exception $e ) {
-			// on error, clear options.
-			$this->client->settings()->clear_options();
-			$this->client->updater()->clear_cache();
 			// undo the activation this attempt created.
 			$undone = $activation_id ? $this->client->activation()->delete( $activation_id ) : true;
 			if ( is_wp_error( $undone ) && 'not_found' !== $undone->get_error_code() ) {
-				// keep its id, so Deactivate License can remove it.
-				$this->client->settings()->activation_id = $activation_id;
+				// keep only its id, so Deactivate License can remove it.
+				$settings->clear_options();
+				$settings->activation_id = $activation_id;
+				$this->client->updater()->clear_cache();
 				return new \WP_Error( 'error', $e->getMessage() . ' ' . $this->client->__( 'The activation could not be undone. Click Deactivate License to remove it.' ) );
 			}
+
+			// restore the previous options, so a failed or interrupted request never loses a saved key.
+			$settings->set_options( $previous );
+
 			// return \WP_Error.
 			return new \WP_Error( 'error', $e->getMessage() );
 		}
@@ -157,6 +162,11 @@ class License {
 	 * @throws \Exception If the license is not valid.
 	 */
 	public function validate( $key, $store = false ) {
+		// without a key, the request would hit the licenses collection.
+		if ( '' === trim( (string) $key ) ) {
+			throw new \Exception( $this->client->__( 'Please enter a license key.' ) );
+		}
+
 		// get license.
 		$license = $this->retrieve( sanitize_text_field( $key ) );
 		if ( is_wp_error( $license ) ) {
