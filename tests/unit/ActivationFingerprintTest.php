@@ -55,6 +55,25 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Make get_site_url() return a given URL.
+	 *
+	 * Filtered rather than set through the siteurl option, which a WP_SITEURL constant overrides.
+	 *
+	 * @param string $site_url The site URL.
+	 *
+	 * @return void
+	 */
+	private function set_site_url( $site_url ) {
+		remove_all_filters( 'site_url' );
+		add_filter(
+			'site_url',
+			function () use ( $site_url ) {
+				return $site_url;
+			}
+		);
+	}
+
+	/**
 	 * Fingerprint for a given site URL.
 	 *
 	 * @param string $site_url The site URL.
@@ -62,7 +81,7 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 	 * @return string
 	 */
 	private function fingerprint_for( $site_url ) {
-		update_option( 'siteurl', $site_url );
+		$this->set_site_url( $site_url );
 		return $this->client->activation()->get_fingerprint();
 	}
 
@@ -90,17 +109,11 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 	}
 
 	public function test_get_fingerprint_falls_back_to_the_raw_url_without_a_host() {
-		add_filter(
-			'site_url',
-			function () {
-				return 'not a url';
-			}
-		);
-		$this->assertSame( esc_url_raw( 'not a url' ), $this->client->activation()->get_fingerprint() );
+		$this->assertSame( esc_url_raw( 'not a url' ), $this->fingerprint_for( 'not a url' ) );
 	}
 
 	public function test_get_fingerprint_is_filterable() {
-		update_option( 'siteurl', 'https://www.example.com' );
+		$this->set_site_url( 'https://www.example.com' );
 		add_filter(
 			'surecart_licensing_fingerprint',
 			function ( $fingerprint, $site_url ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
@@ -113,7 +126,7 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 	}
 
 	public function test_get_fingerprint_filter_receives_the_client() {
-		update_option( 'siteurl', 'https://example.com' );
+		$this->set_site_url( 'https://example.com' );
 		add_filter(
 			'surecart_licensing_fingerprint',
 			function ( $fingerprint, $site_url, $client ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
@@ -126,7 +139,7 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 	}
 
 	public function test_create_sends_the_normalized_fingerprint() {
-		update_option( 'siteurl', 'https://www.example.com/' );
+		$this->set_site_url( 'https://www.example.com/' );
 
 		$this->client->activation()->create( 'lic_1' );
 
