@@ -38,6 +38,44 @@ class Activation {
 	}
 
 	/**
+	 * Get the fingerprint that identifies this site's activation.
+	 *
+	 * URL variants of one site map to one value: the scheme becomes https, the
+	 * host is lowercased, a leading "www." label is dropped and a trailing slash
+	 * is removed. The port and path are kept, since a subdirectory install or a
+	 * different port can be a separate site. A canonical https, non-www URL keeps
+	 * the exact fingerprint it had before normalization.
+	 *
+	 * @return string
+	 */
+	public function get_fingerprint() {
+		$site_url    = get_site_url();
+		$parts       = wp_parse_url( $site_url );
+		$fingerprint = esc_url_raw( $site_url );
+
+		if ( is_array( $parts ) && ! empty( $parts['host'] ) ) {
+			$host = strtolower( $parts['host'] );
+			if ( 0 === strpos( $host, 'www.' ) ) {
+				$host = substr( $host, 4 );
+			}
+
+			$fingerprint = esc_url_raw(
+				'https://' . $host
+				. ( isset( $parts['port'] ) ? ':' . $parts['port'] : '' )
+				. ( isset( $parts['path'] ) ? untrailingslashit( $parts['path'] ) : '' )
+			);
+		}
+
+		/**
+		 * Filter the activation fingerprint.
+		 *
+		 * @param string $fingerprint The normalized fingerprint.
+		 * @param string $site_url    The raw site URL.
+		 */
+		return apply_filters( 'surecart_licensing_fingerprint', $fingerprint, $site_url );
+	}
+
+	/**
 	 * Create an activation for the license.
 	 *
 	 * @param string $license_id The license id.
@@ -55,7 +93,7 @@ class Activation {
 			trailingslashit( $this->endpoint ),
 			array(
 				'activation' => array(
-					'fingerprint' => esc_url_raw( get_site_url() ),
+					'fingerprint' => $this->get_fingerprint(),
 					'name'        => get_bloginfo(),
 					'license'     => $license_id,
 				),
@@ -107,7 +145,7 @@ class Activation {
 			'PATCH',
 			trailingslashit( $this->endpoint ) . $id,
 			array(
-				'fingerprint' => esc_url_raw( get_site_url() ),
+				'fingerprint' => $this->get_fingerprint(),
 				'name'        => get_bloginfo(),
 				'license'     => $license_key,
 			)
