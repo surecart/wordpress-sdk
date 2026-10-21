@@ -18,6 +18,8 @@ if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
 }
 ```
 
+**Note:** Every plugin or theme that bundles the SDK shares the `SureCart\Licensing` namespace, so whichever copy loads first is used by all of them. An older copy bundled elsewhere can override fixes in yours. We recommend prefixing the namespace with a scoper such as [Strauss](https://github.com/BrianHenryIE/strauss) or [PHP-Scoper](https://github.com/humbug/php-scoper) when bundling.
+
 ## Include a release.json
 
 Add a `release.json` file to the root of your plugin or theme project. 
