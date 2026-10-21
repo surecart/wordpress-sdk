@@ -6,9 +6,14 @@
   "scripts": {
     "wp-env": "wp-env",
     "start": "wp-env start --xdebug=develop,coverage",
-    "test:php": "wp-env run phpunit 'phpunit -c /var/www/html/wp-content/plugins/surecart-plugin-example/phpunit.xml --testdox --coverage-html ./tests/report'"
+    "start:tests": "wp-env start --config=.wp-env.tests.json",
+    "test:php": "wp-env run cli --config=.wp-env.tests.json --env-cwd=wp-content/plugins/wordpress-sdk vendor/bin/phpunit --testdox"
   },
   "devDependencies": {
-    "@wordpress/env": "^4.9.0"
+    "@wordpress/env": "^12.0.0"
+  },
+  "resolutions": {
+    "http-cache-semantics": "^4.2.0",
+    "qs": "^6.16.0"
   }
 }

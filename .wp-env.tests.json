@@ -1,0 +1,12 @@
+{
+  "core": null,
+  "testsEnvironment": false,
+  "port": 8004,
+  "config": {
+    "FS_METHOD": "direct",
+    "WP_DEBUG": true
+  },
+  "mappings": {
+    "wp-content/plugins/wordpress-sdk": "."
+  }
+}
