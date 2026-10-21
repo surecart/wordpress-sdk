@@ -1,0 +1,36 @@
+== Changelog ==
+
+= 1.2.3 - October 21st, 2026 =
+- New: Added the surecart_licensing_fingerprint filter. It receives the fingerprint, the raw site URL and the client, so you can check $client->slug to change the fingerprint for one product only.
+- Improvement: URL variants of one site (http or https, with or without www, uppercase host, trailing slash) now send the same activation fingerprint. Sites on an http or www URL send a new fingerprint after upgrading, so re-activating them may use one extra activation slot, once.
+- Improvement: The README now recommends prefixing the SDK namespace with Strauss or PHP-Scoper when bundling, because every product that bundles the SDK shares the SureCart\Licensing namespace.
+- Improvement: Updated development dependencies (wp-env, PHPUnit, PHP_CodeSniffer and WordPress Coding Standards) to resolve security alerts. These are not part of the SDK code you bundle.
+- Fix: License notices no longer cause a fatal error outside wp-admin, such as on the front end, in cron or in REST requests.
+- Fix: License validation errors such as timeouts or server errors now show their own message instead of always saying the license key is not valid.
+
+= 1.2.2 - October 14th, 2026 =
+- Fix: When activation failed after the activation was created, such as with a key for another product, the new activation is now deleted instead of counting against the license limit.
+- Fix: Deactivation now removes the stored activation instead of an id posted from the form.
+- Fix: Deactivation errors are now shown instead of being lost in a redirect or shown next to a success message.
+- Fix: Cached update data is now cleared when a license is activated or deactivated.
+- Fix: The settings redirect now keeps all query args.
+- Fix: The license form no longer prints the license key, activation id or license id in the page source.
+
+= 1.2.1 - September 16th, 2026 =
+- Fix: The stored license key is no longer deleted on temporary API errors such as timeouts or server errors. Only a not found response clears the activation.
+
+= 1.2.0 - April 15th, 2026 =
+- New: Added support for plugin banners and icons in release.json.
+- New: Added set_asset_path() to load the plugin icon and banner images from an asset folder when release.json doesn't set them.
+- New: Added public example plugin and theme files.
+- Fix: Fixed the "Undefined property: stdClass::$plugin" notice in the updater.
+- Fix: Fixed a fatal error on the WordPress Updates screen when release.json included icons.
+
+= 1.1.2 - February 7th, 2024 =
+- Fix: Fixed the PHP 8.2 deprecation notice for the dynamic $cache_key property in the updater.
+
+= 1.1.1 - December 12th, 2023 =
+- Improvement: The public token is optional again, so new Client( $name, $file ) works as it did before 1.1.0.
+
+= 1.1.0 - December 4th, 2023 =
+- New: API requests now send the store's public token. This is a breaking change: pass the token as the second argument, new Client( 'Your Plugin', 'pt_your_public_token', __FILE__ ).

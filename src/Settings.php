@@ -413,6 +413,11 @@ class Settings {
 	 * @return void
 	 */
 	public function add_notice( $code, $message, $type = 'info' ) {
+		// Only loaded in wp-admin; the settings page re-runs get_activation() on render.
+		if ( ! function_exists( 'add_settings_error' ) ) {
+			return;
+		}
+
 		add_settings_error(
 			$this->name . '_license_options', // matches what we registered in `register_setting.
 			$code, // the error code.

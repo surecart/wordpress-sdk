@@ -18,6 +18,8 @@ if ( ! class_exists( 'SureCart\Licensing\Client' ) ) {
 }
 ```
 
+**Note:** Every plugin or theme that bundles the SDK shares the `SureCart\Licensing` namespace, so whichever copy loads first is used by all of them. An older copy bundled elsewhere can override fixes in yours. We recommend prefixing the namespace with a scoper such as [Strauss](https://github.com/BrianHenryIE/strauss) or [PHP-Scoper](https://github.com/humbug/php-scoper) when bundling.
+
 ## Include a release.json
 
 Add a `release.json` file to the root of your plugin or theme project. 
@@ -145,9 +147,13 @@ $client->set_textdomain( 'your-project-textdomain' );
 ```
 
 ## Example Plugin
-[surecart-plugin-license.zip](https://d.pr/f/6MPcya)
+[surecart-plugin-license.zip](https://d.pr/f/I6nxa2)
 
 ## Example Theme
-[surecart-theme-license.zip](https://d.pr/f/mYc39R)
+[surecart-theme-license.zip](https://d.pr/f/n6XBd1)
 
 For full setup and functionality details, see the official documentation: [Licensing Setup and Functionality](https://surecart.com/docs/licensing-setup-and-functionality/).
+
+## Changelog
+
+See [changelog.txt](changelog.txt) for what changed in each version.

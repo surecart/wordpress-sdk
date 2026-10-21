@@ -3,8 +3,8 @@
 class SettingsTest extends \WP_UnitTestCase {
 	public $client;
 
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->client = new \SureCart\Licensing\Client( 'SureCart', __FILE__ );
 	}
 

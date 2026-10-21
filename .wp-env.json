@@ -1,16 +1,8 @@
 {
   "core": null,
-  "plugins": ["."],
-  "env": {
-    "development": {
-      "port": 8003
-    },
-    "tests": {
-      "config": {
-        "FS_METHOD": "direct",
-        "WP_DEBUG": true
-      },
-      "port": 8004
-    }
+  "testsEnvironment": false,
+  "port": 8003,
+  "mappings": {
+    "wp-content/plugins/wordpress-sdk": "."
   }
 }

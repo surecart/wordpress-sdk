@@ -20,13 +20,16 @@
   "require-dev": {
     "wp-phpunit/wp-phpunit": "^6.0",
     "mockery/mockery": "^1.5",
-    "yoast/phpunit-polyfills": "^1.0",
-    "wp-coding-standards/wpcs": "^2.3",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
+    "yoast/phpunit-polyfills": "^1.1",
+    "wp-coding-standards/wpcs": "^3.4.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
   },
   "config": {
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": {
+      "php": "7.4.33"
     }
   }
 }
