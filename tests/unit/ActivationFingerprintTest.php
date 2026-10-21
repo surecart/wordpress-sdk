@@ -28,6 +28,7 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'stub' ), 10 );
 		remove_all_filters( 'surecart_licensing_fingerprint' );
+		remove_all_filters( 'site_url' );
 		parent::tear_down();
 	}
 
@@ -96,7 +97,6 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 			}
 		);
 		$this->assertSame( esc_url_raw( 'not a url' ), $this->client->activation()->get_fingerprint() );
-		remove_all_filters( 'site_url' );
 	}
 
 	public function test_get_fingerprint_is_filterable() {
@@ -110,6 +110,19 @@ class ActivationFingerprintTest extends \WP_UnitTestCase {
 			2
 		);
 		$this->assertSame( get_site_url(), $this->client->activation()->get_fingerprint() );
+	}
+
+	public function test_get_fingerprint_filter_receives_the_client() {
+		update_option( 'siteurl', 'https://example.com' );
+		add_filter(
+			'surecart_licensing_fingerprint',
+			function ( $fingerprint, $site_url, $client ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return $client->slug;
+			},
+			10,
+			3
+		);
+		$this->assertSame( $this->client->slug, $this->client->activation()->get_fingerprint() );
 	}
 
 	public function test_create_sends_the_normalized_fingerprint() {

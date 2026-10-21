@@ -69,10 +69,14 @@ class Activation {
 		/**
 		 * Filter the activation fingerprint.
 		 *
-		 * @param string $fingerprint The normalized fingerprint.
-		 * @param string $site_url    The raw site URL.
+		 * Every product bundling the SDK runs this filter, so check $client->slug
+		 * to change the fingerprint for one product only.
+		 *
+		 * @param string                     $fingerprint The normalized fingerprint.
+		 * @param string                     $site_url    The raw site URL.
+		 * @param \SureCart\Licensing\Client $client      The client requesting the fingerprint.
 		 */
-		return apply_filters( 'surecart_licensing_fingerprint', $fingerprint, $site_url );
+		return apply_filters( 'surecart_licensing_fingerprint', $fingerprint, $site_url, $this->client );
 	}
 
 	/**
