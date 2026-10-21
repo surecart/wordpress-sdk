@@ -6,6 +6,7 @@
 - Improvement: The README now recommends prefixing the SDK namespace with Strauss or PHP-Scoper when bundling, because every product that bundles the SDK shares the SureCart\Licensing namespace.
 - Improvement: Updated development dependencies (wp-env, PHPUnit, PHP_CodeSniffer and WordPress Coding Standards) to resolve security alerts. These are not part of the SDK code you bundle.
 - Fix: License notices no longer cause a fatal error outside wp-admin, such as on the front end, in cron or in REST requests.
+- Fix: License validation errors such as timeouts or server errors now show their own message instead of always saying the license key is not valid.
 
 = 1.2.2 - October 14th, 2026 =
 - Fix: When activation failed after the activation was created, such as with a key for another product, the new activation is now deleted instead of counting against the license limit.
