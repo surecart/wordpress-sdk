@@ -236,7 +236,7 @@ class Client {
 			if ( empty( $plugin_data['Version'] ) ) {
 				add_action(
 					'admin_notices',
-					function() {
+					function () {
 						printf( '<div class="notice notice-error"><p>' . esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your plugin.</p></div>' );
 					}
 				);
@@ -258,7 +258,7 @@ class Client {
 			if ( empty( $theme->version ) ) {
 				add_action(
 					'admin_notices',
-					function() {
+					function () {
 						printf( '<div class="notice notice-error"><p>' . esc_html( $this->name ) . ' Licensing Configuration Error: The <code>__FILE__</code> must point to the main file of your theme.</p></div>' );
 					}
 				);

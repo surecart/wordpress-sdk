@@ -43,5 +43,7 @@
 		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
 		<exclude name="Squiz.Commenting.VariableComment.Missing" />
 		<exclude name="Squiz.Commenting.ClassComment.Missing" />
+		<!-- Exceptions are caught and returned as WP_Error, never printed, so escaping at throw would double-escape. -->
+		<exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped" />
 	</rule>
 </ruleset>
