@@ -153,3 +153,7 @@ $client->set_textdomain( 'your-project-textdomain' );
 [surecart-theme-license.zip](https://d.pr/f/mYc39R)
 
 For full setup and functionality details, see the official documentation: [Licensing Setup and Functionality](https://surecart.com/docs/licensing-setup-and-functionality/).
+
+## Changelog
+
+See [changelog.txt](changelog.txt) for what changed in each version.
